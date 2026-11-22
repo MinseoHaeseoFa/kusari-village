@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="day" data-mode="browse">
+<html lang="ko" data-theme="day" data-mode="browse" data-weather="clear">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>쿠사리 타운 v3 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
+<title>쿠사리 빌리지 v4 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
 <meta name="description" content="쿠사리님이 만든 웹앱 9곳이 하나의 2.5D 마을에 모여 삽니다. 초록 마을이 화면을 가득 채우고, 건물을 누르면 그 사이트로 바로 이동합니다." />
 <meta name="theme-color" content="#8FB069" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="쿠사리 타운 v3 · Kusari Village" />
-<meta property="og:description" content="내 사이트들이 모여 사는 2.5D 마을. 1단계 본부 · 2단계 별관의 계층을 지도 위에서 한눈에." />
+<meta property="og:title" content="쿠사리 빌리지 v4 · Kusari Village" />
+<meta property="og:description" content="내 사이트들이 모여 사는 2.5D 마을. 본부와 별관의 계층, 낮·노을·밤 그리고 지금 이곳의 날씨까지 지도 위에서 한눈에." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A1%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="assets/css/style.css" />
 </head>
@@ -100,9 +100,10 @@
 <!-- ══════════════════════════════════════════════════════════════
      2.5D 마을 지도 (풀스크린)
      ══════════════════════════════════════════════════════════════ -->
-<div class="stage" id="stage" aria-label="쿠사리 타운 마을 지도">
+<div class="stage" id="stage" aria-label="쿠사리 빌리지 마을 지도">
   <div class="world" id="world">
     <svg class="terrain" id="terrain" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
+    <div class="world__stars" aria-hidden="true"></div>
     <div class="sun" aria-hidden="true"></div>
     <svg class="links" id="links" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
     <div class="blds" id="blds"></div>
@@ -128,27 +129,37 @@
       <span class="avatar__tag">김비서</span>
     </div>
     <div class="world__sunset" aria-hidden="true"></div>
+    <div class="world__night" aria-hidden="true"></div>
+    <div class="world__moon" aria-hidden="true"></div>
+    <div class="world__weather" aria-hidden="true"></div>
     <div class="world__glow" aria-hidden="true"></div>
     <div class="fireflies" aria-hidden="true"></div>
   </div>
   <div class="stage__vignette" aria-hidden="true"></div>
+  <canvas class="fx" id="fxCanvas" aria-hidden="true"></canvas>
 </div>
 
 <!-- ── 상단 바 ─────────────────────────────────────────────── -->
 <header class="topbar">
-  <a class="brand" href="#" data-home aria-label="쿠사리 타운 전체 보기">
+  <a class="brand" href="#" data-home aria-label="쿠사리 빌리지 전체 보기">
     <span class="brand__mark" aria-hidden="true">🏡</span>
     <span class="brand__text">
-      <strong>쿠사리 타운</strong>
-      <small>KUSARI VILLAGE <b>v3</b></small>
+      <strong>쿠사리 빌리지</strong>
+      <small>KUSARI VILLAGE <b>v4</b></small>
     </span>
   </a>
 
   <div class="topbar__mid" role="group" aria-label="마을 요약">
     <span class="pill"><b id="sumSites">0</b>곳 입주</span>
-    <span class="pill pill--t1"><i aria-hidden="true">1</i>1단계 <b id="sumT1">0</b></span>
-    <span class="pill pill--t2"><i aria-hidden="true">2</i>2단계 <b id="sumT2">0</b></span>
+    <span class="pill pill--t1"><i aria-hidden="true">🏛</i>본부 <b id="sumT1">0</b></span>
+    <span class="pill pill--t2"><i aria-hidden="true">🏢</i>별관 <b id="sumT2">0</b></span>
   </div>
+
+  <button type="button" class="wxchip" id="wxChip" aria-live="polite">
+    <span class="wxchip__ico" id="wxIco" aria-hidden="true">☀️</span>
+    <span class="wxchip__txt" id="wxTxt">맑음</span>
+    <span class="wxchip__temp" id="wxTemp">--°</span>
+  </button>
 
   <div class="topbar__right">
     <div class="segmented" role="group" aria-label="보기 방식">
@@ -179,9 +190,10 @@
   <button type="button" class="dock__btn dock__btn--round" id="zoomIn" aria-label="확대">＋</button>
   <button type="button" class="dock__btn dock__btn--round" id="zoomFit" aria-label="마을 전체 보기" title="마을 전체 보기">⌂</button>
   <span class="dock__sep" aria-hidden="true"></span>
-  <button type="button" class="dock__btn" id="themeBtn" aria-pressed="false">
+  <button type="button" class="dock__btn dock__btn--time" id="themeBtn" aria-pressed="false" title="낮 → 노을 → 밤 → 자동">
     <span class="dock__ico" id="themeIco" aria-hidden="true">☀️</span>
     <span class="dock__label" id="themeLabel">낮</span>
+    <span class="dock__auto" id="themeAuto">자동</span>
   </button>
 </div>
 
@@ -236,13 +248,13 @@
       <p class="eyebrow">SITE DIRECTORY</p>
       <h1 class="deckview__title">마을 사이트 목록</h1>
       <p class="deckview__lead">
-        대등한 9개 나열이 아니라 <b>1단계 5곳</b>이 중심이고, <b>나의 여행 지도</b> 아래에
-        <b>2단계 4곳</b>이 매달려 있어요. 카드의 <b>열기</b>는 이 탭에서 바로 열리고, 소개는 <b>정보</b> 버튼에서 봅니다.
+        대등한 9개 나열이 아니라 <b>본부 5곳</b>이 중심이고, <b>나의 여행 지도</b> 아래에
+        <b>별관 4곳</b>이 매달려 있어요. 카드의 <b>열기</b>는 이 탭에서 바로 열리고, 소개는 <b>정보</b> 버튼에서 봅니다.
       </p>
       <div class="depthkey">
-        <span class="depthkey__item depthkey__item--1"><i>1</i> 1단계 · 독립 사이트 / 본부 <b id="keyT1">0</b></span>
+        <span class="depthkey__item depthkey__item--1"><i>본</i> 본부 · 독립 사이트 <b id="keyT1">0</b></span>
         <span class="depthkey__arrow" aria-hidden="true">└─</span>
-        <span class="depthkey__item depthkey__item--2"><i>2</i> 2단계 · 본부 하위 연결 <b id="keyT2">0</b></span>
+        <span class="depthkey__item depthkey__item--2"><i>별</i> 별관 · 본부 하위 연결 <b id="keyT2">0</b></span>
       </div>
     </header>
 
@@ -344,14 +356,14 @@
           <div class="tierpick" id="tierPick">
             <label class="tiercard" data-tier="1">
               <input type="radio" name="tier" value="1" checked />
-              <i aria-hidden="true">1</i>
-              <strong>1단계 · 독립 사이트</strong>
+              <i aria-hidden="true">본</i>
+              <strong>본부 · 독립 사이트</strong>
               <span>큰 부지에 당당하게 서는 독립 사이트 (새 본부가 될 수도 있어요)</span>
             </label>
             <label class="tiercard" data-tier="2">
               <input type="radio" name="tier" value="2" />
-              <i aria-hidden="true">2</i>
-              <strong>2단계 · 본부 하위 연결</strong>
+              <i aria-hidden="true">별</i>
+              <strong>별관 · 본부 하위 연결</strong>
               <span>기존 본부 옆 위성 부지에 오솔길로 이어져 배치됩니다</span>
             </label>
           </div>
@@ -360,7 +372,7 @@
         <div class="field field--wide parentpick" id="parentPick" hidden>
           <label class="field__label" for="fParent">상위 본부 <b>*</b></label>
           <select id="fParent"></select>
-          <span class="field__hint">2단계는 상위 본부의 지구를 따라가고, 본부와 곡선 오솔길로 연결돼요.</span>
+          <span class="field__hint">별관은 상위 본부의 지구를 따라가고, 본부와 곡선 오솔길로 연결돼요.</span>
         </div>
 
         <fieldset class="field field--wide" id="districtField">

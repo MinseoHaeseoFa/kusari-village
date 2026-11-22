@@ -1,6 +1,7 @@
 /* ============================================================
-   🏡 쿠사리 타운 v2 — app.js
-   2.5D 마을 지도 · Depth(1단계/2단계) 계층 · 카메라/투어/걷기
+   🏡 쿠사리 빌리지 v4 — app.js
+   2.5D 마을 지도 · 본부/별관 계층 · 카메라/투어/걷기
+   시간대(낮·노을·밤) 자동 전환 + 현지 실시간 날씨 풍경
    기본 명단(data/sites.js) + 내가 입주시킨 건물(localStorage)
    ============================================================ */
 (function () {
@@ -15,7 +16,8 @@
   const KEY = {
     custom: "kusari-village:v2:custom-sites",
     fav: "kusari-village:v2:favorites",
-    theme: "kusari-village:v2:theme",
+    theme: "kusari-village:v4:time-mode",
+    wx: "kusari-village:v4:weather-mode",
     view: "kusari-village:v2:view",
     coach: "kusari-village:v2:coach-seen",
     v1custom: "kusari-village:v1:custom-sites",
@@ -70,6 +72,9 @@
     filter: "all", query: "",
     view: "map", mode: "browse",
     detailId: null, editingId: null,
+    timeMode: "auto",
+    wxMode: "auto",
+    wx: { code: null, temp: null, key: "clear", loaded: false, place: "" },
     cam: { cx: W.w / 2, cy: W.h / 2, s: 0.55 },
     walk: { x: 1180, y: 1500, vx: 0, vy: 0, target: null, face: 1, moving: false, last: 0 },
     nearId: null,
@@ -96,13 +101,13 @@
     if (site.role) return site.role;
     if (site.tier === 2) {
       const p = siteById(site.parent);
-      return "2단계 · " + (p ? p.name : "본부") + " 하위";
+      return "별관 · " + (p ? p.name : "본부") + " 하위";
     }
     return districtOf(site.district).name + " · 독립 사이트";
   }
   function widthOf(site) {
     if (site.w) return site.w;
-    return site.tier === 2 ? 200 : 290;
+    return site.tier === 2 ? 168 : 250;
   }
 
   /* ── 저장된 데이터 ─────────────────────────────────────── */
@@ -203,6 +208,7 @@
     minScale = coverScale();
     if (state.cam.s < minScale) state.cam.s = minScale;
     applyCam();
+    fxResize();
   }
   window.addEventListener("resize", () => { resize(); });
 
@@ -470,6 +476,13 @@
     <path d="M 1340 1058 C 1420 1050 1490 1060 1560 1054" fill="none" stroke="#FFF" stroke-opacity=".45" stroke-width="4" stroke-linecap="round"/>
     <path d="M 1900 1064 C 1970 1056 2030 1064 2090 1058" fill="none" stroke="#FFF" stroke-opacity=".4" stroke-width="4" stroke-linecap="round"/>
 
+    <!-- 달빛 강물 반사 (밤에만 서서히 켜진다) -->
+    <g class="moon-reflect">
+      <path d="${RIVER}" fill="none" stroke="#BBD8F5" stroke-opacity=".5" stroke-width="62" stroke-linecap="round"/>
+      <path d="${RIVER}" fill="none" stroke="#EAF4FF" stroke-opacity=".5" stroke-width="6" stroke-dasharray="14 30" stroke-linecap="round"/>
+      <path d="${RIVER}" fill="none" stroke="#FFFFFF" stroke-opacity=".38" stroke-width="2.4" stroke-dasharray="6 40" stroke-linecap="round"/>
+    </g>
+
     <!-- 오솔길 -->
     ${roadSvg}
 
@@ -528,8 +541,8 @@
       <rect x="1250" y="1424" width="60" height="19" rx="9" fill="#E4CBA3"/>
       <path d="M1080 1438 C1080 1374 1132 1352 1180 1352 C1228 1352 1280 1374 1280 1438 L1248 1438 C1248 1396 1218 1380 1180 1380 C1142 1380 1112 1396 1112 1438 Z" fill="#D9B98A"/>
       <path d="M1080 1438 C1080 1374 1132 1352 1180 1352 C1228 1352 1280 1374 1280 1438 L1248 1438 C1248 1396 1218 1380 1180 1380 C1142 1380 1112 1396 1112 1438 Z" fill="none" stroke="#B99567" stroke-width="4"/>
-      <rect x="1116" y="1378" width="128" height="54" rx="13" fill="#FFF9EA" stroke="#B99567" stroke-width="4"/>
-      <text x="1180" y="1402" text-anchor="middle" font-size="24" font-weight="900" fill="#7A5330" font-family="var(--font)">쿠사리 타운</text>
+      <rect x="1104" y="1378" width="152" height="54" rx="13" fill="#FFF9EA" stroke="#B99567" stroke-width="4"/>
+      <text x="1180" y="1402" text-anchor="middle" font-size="20" font-weight="900" fill="#7A5330" font-family="var(--font)">쿠사리 빌리지</text>
       <text x="1180" y="1421" text-anchor="middle" font-size="10.5" font-weight="800" letter-spacing="2.2" fill="#B08A57" font-family="var(--font)">KUSARI VILLAGE</text>
       <circle cx="1180" cy="1346" r="8.5" fill="#E4C48E" stroke="#B99567" stroke-width="3"/>
       <path d="M1180 1355 v-17" stroke="#B99567" stroke-width="3"/>
@@ -587,12 +600,12 @@
               aria-label="${esc(site.name)}. ${esc(role)}. 사이트로 이동"
               title="${esc(site.name)} — 누르면 바로 이동">
         <span class="bld__pad" aria-hidden="true"></span>
+        <span class="bld__light" aria-hidden="true"></span>
         <img class="bld__img" src="${esc(preset.img)}" alt="${esc(preset.name)} 건물 그림"
              width="${preset.w || 760}" height="${preset.h || 700}" decoding="async">
         ${isFav(site.id) ? '<span class="bld__fav" aria-hidden="true">★</span>' : ""}
         ${hub ? '<span class="bubble" data-hub-bubble></span>' : '<span class="bubble"></span>'}
         <span class="bld__plate">
-          <span class="bld__tier">${tier === 1 ? "1단계" : "2단계"}</span>
           <span class="bld__name">${esc(site.name)}</span>
           <span class="bld__role">${esc(role)}</span>
         </span>
@@ -703,7 +716,7 @@
       const short = esc(d.name.replace(" 지구", "").replace(" 골목", "").replace(" 광장", "").replace(" 개발지", ""));
       return `<button type="button" class="hud__chip" data-district="${esc(d.id)}">
         <span aria-hidden="true">${d.emoji}</span><span class="hud__long">${esc(d.name)}</span><span class="hud__short">${short}</span> <b>${n}</b></button>`;
-    }).join("") + `<span class="hud__depth" title="1단계 본부 아래에 2단계 사이트가 매달립니다"><i>2</i> 별관은 본부에 연결</span>`;
+    }).join("") + `<span class="hud__depth" title="본부 아래에 별관이 매달립니다"><i>별</i> 별관은 본부에 연결</span>`;
 
     nav.onclick = (e) => {
       const btn = e.target.closest("[data-district]");
@@ -765,29 +778,286 @@
     miniViewEl.style.display = (w / W.w > 0.9 && h / W.h > 0.9) ? "none" : "";
   }
 
-  /* ── 테마 ─────────────────────────────────────────────── */
-  function applyTheme(t, persist) {
-    const theme = t === "sunset" ? "sunset" : "day";
-    document.documentElement.dataset.theme = theme;
-    const ico = $("#themeIco"), lab = $("#themeLabel"), btn = $("#themeBtn");
-    if (ico) ico.textContent = theme === "sunset" ? "🌅" : "☀️";
-    if (lab) lab.textContent = theme === "sunset" ? "노을" : "낮";
-    if (btn) {
-      btn.setAttribute("aria-pressed", String(theme === "sunset"));
-      btn.setAttribute("aria-label", theme === "sunset" ? "낮으로 바꾸기" : "노을로 바꾸기");
-    }
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", theme === "sunset" ? "#2B2337" : "#EFE3CD");
-    if (persist) write(KEY.theme, theme);
+  /* ── 시간대(낮·노을·밤) — 현지 시각 자동 + 수동 전환 ────── */
+  /*   08:00~17:59 낮 / 18:00~18:59 노을 / 19:00~07:59 밤   */
+  const PHASE_META = {
+    day:    { ico: "☀️", label: "낮",  say: "☀️ 맑은 낮이에요" },
+    sunset: { ico: "🌅", label: "노을", say: "🌅 노을이 내려앉았어요 — 가로등에 불이 켜집니다" },
+    night:  { ico: "🌙", label: "밤",  say: "🌙 별빛 내린 밤이에요 — 달빛이 강물에 잠깁니다" }
+  };
+  const TIME_CYCLE = ["auto", "day", "sunset", "night"];
+  const THEME_COLOR = { day: "#EFE3CD", sunset: "#2B2337", night: "#131A2E" };
+
+  function phaseOfNow(d) {
+    const h = (d || new Date()).getHours();
+    if (h >= 8 && h < 18) return "day";
+    if (h === 18) return "sunset";
+    return "night";
   }
-  applyTheme(read(KEY.theme, null) || read(KEY.v1theme, null) || "day", false);
+  function phaseNow() { return state.timeMode === "auto" ? phaseOfNow() : state.timeMode; }
+
+  function applyTime(mode, opts) {
+    state.timeMode = TIME_CYCLE.indexOf(mode) > 0 ? mode : "auto";
+    const phase = phaseNow();
+    const meta = PHASE_META[phase];
+    document.documentElement.dataset.theme = phase;
+
+    const ico = $("#themeIco"), lab = $("#themeLabel"), btn = $("#themeBtn"), autoTag = $("#themeAuto");
+    if (ico) ico.textContent = meta.ico;
+    if (lab) lab.textContent = meta.label;
+    if (autoTag) autoTag.hidden = state.timeMode !== "auto";
+    if (btn) {
+      const nextLabel = state.timeMode === "auto" ? "낮" : (state.timeMode === "night" ? "자동" : PHASE_META[TIME_CYCLE[TIME_CYCLE.indexOf(state.timeMode) + 1]].label);
+      btn.setAttribute("aria-pressed", String(state.timeMode !== "auto"));
+      btn.setAttribute("aria-label", "시간대 " + meta.label + (state.timeMode === "auto" ? " (자동)" : " (고정)") + " · 누르면 " + nextLabel);
+      btn.title = "낮 → 노을 → 밤 → 자동";
+    }
+    const metaTag = document.querySelector('meta[name="theme-color"]');
+    if (metaTag) metaTag.setAttribute("content", THEME_COLOR[phase]);
+
+    if (opts && opts.persist) write(KEY.theme, state.timeMode);
+    if (opts && opts.toast) {
+      toast(state.timeMode === "auto"
+        ? "🕒 현지 시각에 맞춰 자동 전환 — 지금은 " + meta.label + "이에요"
+        : meta.say);
+    }
+  }
+  function nextTimeMode() {
+    return TIME_CYCLE[(TIME_CYCLE.indexOf(state.timeMode) + 1) % TIME_CYCLE.length];
+  }
   if ($("#themeBtn")) {
     $("#themeBtn").addEventListener("click", () => {
-      const next = document.documentElement.dataset.theme === "sunset" ? "day" : "sunset";
-      applyTheme(next, true);
-      toast(next === "sunset" ? "🌅 노을이 내려앉았어요 — 가로등에 불이 켜집니다" : "☀️ 맑은 낮이에요");
+      applyTime(nextTimeMode(), { persist: true, toast: true });
     });
   }
+
+  /* ── 날씨 — 현지 실시간(Open-Meteo) + 미리보기 체험 ─────── */
+  const WX_INFO = {
+    clear:  { ico: "☀️", label: "맑음",     fx: "none" },
+    partly: { ico: "⛅", label: "구름 조금", fx: "none" },
+    cloud:  { ico: "☁️", label: "흐림",     fx: "none" },
+    rain:   { ico: "🌧", label: "비",       fx: "rain" },
+    snow:   { ico: "🌨", label: "눈",       fx: "snow" },
+    fog:    { ico: "🌫", label: "안개",     fx: "none" },
+    storm:  { ico: "⛈", label: "천둥번개", fx: "rain" }
+  };
+  const WX_CYCLE = ["auto", "clear", "cloud", "rain", "snow"];
+  const WX_FALLBACK = { lat: 36.815, lon: 127.114 }; /* 천안 */
+
+  function wxKeyFromCode(code) {
+    if (code === 0) return "clear";
+    if (code === 1 || code === 2) return "partly";
+    if (code === 3) return "cloud";
+    if (code === 45 || code === 48) return "fog";
+    if (code >= 51 && code <= 57) return "rain";
+    if (code >= 61 && code <= 67) return "rain";
+    if (code >= 71 && code <= 77) return "snow";
+    if (code >= 80 && code <= 82) return "rain";
+    if (code === 85 || code === 86) return "snow";
+    if (code >= 95) return "storm";
+    return "clear";
+  }
+
+  function applyWeather(opts) {
+    const auto = state.wxMode === "auto";
+    const key = auto ? state.wx.key : state.wxMode;
+    const info = WX_INFO[key] || WX_INFO.clear;
+    const tempTxt = state.wx.temp == null ? "--°" : Math.round(state.wx.temp) + "°";
+    document.documentElement.dataset.weather = key;
+
+    const ico = $("#wxIco"), txt = $("#wxTxt"), temp = $("#wxTemp"), chip = $("#wxChip");
+    if (ico) ico.textContent = info.ico;
+    if (txt) txt.textContent = info.label;
+    if (temp) temp.textContent = tempTxt;
+    if (chip) {
+      chip.classList.toggle("is-preview", !auto);
+      chip.setAttribute("aria-label", "날씨 " + info.label + (state.wx.temp == null ? "" : " " + Math.round(state.wx.temp) + "도") +
+        (auto ? " · 지금 이곳 실시간" : " · 미리보기 체험") + ". 누르면 자동 → 맑음 → 흐림 → 비 → 눈 순서로 바뀝니다.");
+      chip.title = auto ? "지금 이곳 날씨 — 눌러서 비·눈 풍경도 미리 볼 수 있어요" : "미리보기: " + info.label + " — 눌러서 다음 날씨";
+    }
+    setFx(info.fx);
+
+    if (opts && opts.persist) write(KEY.wx, state.wxMode);
+    if (opts && opts.toast) {
+      toast(auto
+        ? (state.wx.loaded ? "🌍 지금 이곳 날씨로 돌아왔어요 — " + info.label + " " + tempTxt : "🌍 지금 이곳 날씨를 불러오는 중이에요 — " + info.label)
+        : info.ico + " " + info.label + " 풍경 미리보기");
+    }
+  }
+  if ($("#wxChip")) {
+    $("#wxChip").addEventListener("click", () => {
+      state.wxMode = WX_CYCLE[(WX_CYCLE.indexOf(state.wxMode) + 1) % WX_CYCLE.length];
+      applyWeather({ persist: true, toast: true });
+    });
+  }
+
+  function loadWeather() {
+    if (!navigator.geolocation) { fetchOpenMeteo(WX_FALLBACK.lat, WX_FALLBACK.lon); return; }
+    let settled = false;
+    const fallbackTimer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      fetchOpenMeteo(WX_FALLBACK.lat, WX_FALLBACK.lon);
+    }, 4200);
+    const fallback = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(fallbackTimer);
+      fetchOpenMeteo(WX_FALLBACK.lat, WX_FALLBACK.lon);
+    };
+    try {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(fallbackTimer);
+          fetchOpenMeteo(pos.coords.latitude, pos.coords.longitude);
+        },
+        fallback,
+        { timeout: 4000, maximumAge: 600000, enableHighAccuracy: false }
+      );
+    } catch (e) { fallback(); }
+  }
+
+  function fetchOpenMeteo(lat, lon) {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=" + lat.toFixed(4) + "&longitude=" + lon.toFixed(4) +
+      "&current=weather_code,temperature_2m&timezone=auto";
+    fetch(url, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("http " + r.status))))
+      .then((data) => {
+        const cur = (data && data.current) || {};
+        const code = Number(cur.weather_code);
+        const temp = Number(cur.temperature_2m);
+        state.wx.code = Number.isFinite(code) ? code : null;
+        state.wx.temp = Number.isFinite(temp) ? temp : null;
+        state.wx.key = state.wx.code == null ? "clear" : wxKeyFromCode(state.wx.code);
+        state.wx.loaded = true;
+      })
+      .catch(() => {
+        state.wx.key = "clear";
+        state.wx.temp = null;
+        state.wx.loaded = false;
+      })
+      .then(() => { applyWeather(); });
+  }
+
+  /* ── 날씨 효과 캔버스 — pointer-events:none 캔버스 단 1개 ── */
+  const fxCanvas = $("#fxCanvas");
+  const fxCtx = fxCanvas ? fxCanvas.getContext("2d") : null;
+  const REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const rainDrops = [], snowFlakes = [];
+  let fxKind = "none", fxW = 0, fxH = 0, fxDpr = 1;
+
+  function fxResize() {
+    if (!fxCanvas) return;
+    fxDpr = Math.min(2, window.devicePixelRatio || 1);
+    fxW = window.innerWidth;
+    fxH = window.innerHeight;
+    fxCanvas.width = Math.round(fxW * fxDpr);
+    fxCanvas.height = Math.round(fxH * fxDpr);
+    fxCanvas.style.width = fxW + "px";
+    fxCanvas.style.height = fxH + "px";
+    if (fxCtx) fxCtx.setTransform(fxDpr, 0, 0, fxDpr, 0, 0);
+    seedFx(fxKind);
+  }
+
+  function newDrop() {
+    return {
+      x: Math.random() * (fxW + 120), y: Math.random() * fxH - fxH * 0.2,
+      l: 11 + Math.random() * 20, v: 620 + Math.random() * 520,
+      a: 0.22 + Math.random() * 0.34
+    };
+  }
+  function newFlake() {
+    return {
+      x: Math.random() * fxW, y: Math.random() * fxH,
+      r: 1.1 + Math.random() * 2.3, v: 24 + Math.random() * 46,
+      d: Math.random() * Math.PI * 2, w: 10 + Math.random() * 20,
+      a: 0.45 + Math.random() * 0.45
+    };
+  }
+  function seedFx(kind) {
+    rainDrops.length = 0;
+    snowFlakes.length = 0;
+    if (kind === "rain") {
+      const n = Math.round(clamp(fxW / 7.5, 50, 130));
+      for (let i = 0; i < n; i++) rainDrops.push(newDrop());
+    } else if (kind === "snow") {
+      const n = Math.round(clamp(fxW / 11, 34, 84));
+      for (let i = 0; i < n; i++) snowFlakes.push(newFlake());
+    }
+    if (fxCtx) fxCtx.clearRect(0, 0, fxW, fxH);
+  }
+  function setFx(kind) {
+    if (kind === fxKind) return;
+    fxKind = kind;
+    if (fxCanvas) fxCanvas.setAttribute("data-fx", kind);
+    seedFx(kind);
+  }
+  function drawFx(dt) {
+    if (!fxCtx || fxKind === "none" || REDUCED) return;
+    if (state.view !== "map") return;
+    fxCtx.clearRect(0, 0, fxW, fxH);
+    if (fxKind === "rain") {
+      fxCtx.lineWidth = 1.15;
+      fxCtx.lineCap = "round";
+      for (let i = 0; i < rainDrops.length; i++) {
+        const d = rainDrops[i];
+        d.y += d.v * dt;
+        d.x -= d.v * 0.16 * dt;
+        if (d.y > fxH + 40) {
+          d.y = -40 - Math.random() * 120;
+          d.x = Math.random() * (fxW + 160);
+        }
+        if (d.x < -50) d.x = fxW + 50;
+        fxCtx.strokeStyle = "rgba(214,233,248," + d.a.toFixed(2) + ")";
+        fxCtx.beginPath();
+        fxCtx.moveTo(d.x, d.y);
+        fxCtx.lineTo(d.x - d.l * 0.16, d.y + d.l);
+        fxCtx.stroke();
+      }
+    } else if (fxKind === "snow") {
+      for (let i = 0; i < snowFlakes.length; i++) {
+        const f = snowFlakes[i];
+        f.d += dt * 0.9;
+        f.y += f.v * dt;
+        f.x += Math.sin(f.d) * f.w * dt;
+        if (f.y > fxH + 16) { f.y = -16; f.x = Math.random() * fxW; }
+        if (f.x < -16) f.x = fxW + 16;
+        else if (f.x > fxW + 16) f.x = -16;
+        fxCtx.fillStyle = "rgba(255,255,255," + f.a.toFixed(2) + ")";
+        fxCtx.beginPath();
+        fxCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+        fxCtx.fill();
+      }
+    }
+  }
+
+  /* ── 시간대 · 날씨 초기화 ─────────────────────────────── */
+  (function initSky() {
+    const savedTime = read(KEY.theme, "auto");
+    applyTime(TIME_CYCLE.indexOf(savedTime) > 0 ? savedTime : "auto", {});
+    const savedWx = read(KEY.wx, "auto");
+    state.wxMode = WX_CYCLE.indexOf(savedWx) > 0 ? savedWx : "auto";
+    fxResize();
+    applyWeather({});
+    loadWeather();
+
+    /* 자동 시간대: 30초마다 현지 시각 확인, 탭 복귀 시 즉시 확인 */
+    let lastPhase = phaseOfNow();
+    setInterval(() => {
+      if (state.timeMode !== "auto") return;
+      const p = phaseOfNow();
+      if (p !== lastPhase) { lastPhase = p; applyTime("auto", {}); }
+    }, 30000);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden || state.timeMode !== "auto") return;
+      lastPhase = phaseOfNow();
+      applyTime("auto", {});
+    });
+    /* 실시간 날씨는 20분마다 갱신 */
+    setInterval(() => { if (state.wxMode === "auto") loadWeather(); }, 20 * 60 * 1000);
+  })();
 
   /* ── 보기 전환 ────────────────────────────────────────── */
   function setView(view, persist, opts) {
@@ -842,7 +1112,7 @@
       <span class="tree__thumb"><img src="${esc(p.img)}" alt="" width="38" height="38" loading="lazy"></span>
       <span class="tree__txt">
         <span class="tree__name">${esc(child.name)}</span>
-        <span class="tree__role">2단계 · ${esc(roleOf(child))}</span>
+        <span class="tree__role">${esc(roleOf(child))}</span>
       </span>
       <span class="tree__acts">
         <a class="tree__open" href="${esc(child.url)}" aria-label="${esc(child.name)} 열기">열기 ↗</a>
@@ -864,7 +1134,7 @@
         <div class="card__body">
           <div class="card__top">
             <div>
-              <span class="tierbadge">1단계 · 본부</span>
+              <span class="tierbadge">본부</span>
               <h3 class="card__name" style="margin-top:5px">${esc(hub.name)}</h3>
             </div>
             <button type="button" class="card__star${fav ? " is-on" : ""}" data-fav="${esc(hub.id)}" aria-pressed="${fav}" aria-label="${esc(hub.name)} 즐겨찾기">★</button>
@@ -880,7 +1150,7 @@
         ${showTree ? `<div class="tree">
           <button type="button" class="tree__head" data-fold-tree aria-expanded="true">
             <span class="tree__mark">└─</span> 연결된 하위 사이트
-            <span class="tree__count">2단계 ${allKids.length}</span>
+            <span class="tree__count">별관 ${allKids.length}</span>
             ${matchedByChild && state.query ? '<span class="tree__count" style="background:#FFF1D8;color:#9A6B10">검색 일치</span>' : ""}
             <span class="tree__fold">접기 ▾</span>
           </button>
@@ -903,7 +1173,7 @@
         <div class="card__body">
           <div class="card__top">
             <div>
-              <span class="tierbadge${site.tier === 2 ? " tierbadge--2" : ""}">${site.tier === 2 ? "2단계 · 별관" : "1단계 · 독립"}</span>
+              <span class="tierbadge${site.tier === 2 ? " tierbadge--2" : ""}">${site.tier === 2 ? "별관" : "본부"}</span>
               <h3 class="card__name" style="margin-top:5px">${esc(site.name)}</h3>
             </div>
             <button type="button" class="card__star${fav ? " is-on" : ""}" data-fav="${esc(site.id)}" aria-pressed="${fav}" aria-label="${esc(site.name)} 즐겨찾기">★</button>
@@ -1079,7 +1349,7 @@
     const kids = childrenOf(site.id);
     if (kids.length) {
       return `<div class="depthbox depthbox--hub">
-        <p class="depthbox__title">🔗 연결된 하위 사이트 <span class="depthbox__count">2단계 ${kids.length}</span></p>
+        <p class="depthbox__title">🔗 연결된 하위 사이트 <span class="depthbox__count">별관 ${kids.length}</span></p>
         <ul class="depthbox__list">
           ${kids.map((k, i) => {
             const kp = presetOf(k.building);
@@ -1099,7 +1369,7 @@
         return `<div class="depthbox depthbox--child">
           <p class="depthbox__title">⬆️ 상위 허브</p>
           <button type="button" class="depthbox__parent" data-goto="${esc(parent.id)}">
-            <span class="tierbadge">1단계 본부</span>
+            <span class="tierbadge">본부</span>
             <b>${esc(parent.name)}</b>
             <span class="arrow">→</span>
           </button>
@@ -1107,8 +1377,8 @@
       }
     }
     return `<div class="depthbox">
-      <p class="depthbox__title">🌿 1단계 · 독립 사이트</p>
-      <p style="margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-soft)">다른 본부에 매달리지 않고 홀로 서는 사이트예요. 이 건물을 본부로 삼아 2단계 사이트를 이어 붙일 수 있습니다.</p>
+      <p class="depthbox__title">🌿 본부 · 독립 사이트</p>
+      <p style="margin:0;font-size:11.5px;line-height:1.6;color:var(--ink-soft)">다른 본부에 매달리지 않고 홀로 서는 사이트예요. 이 건물을 본부로 삼아 별관을 이어 붙일 수 있습니다.</p>
     </div>`;
   }
 
@@ -1122,7 +1392,7 @@
     $("#detailImg").src = preset.img;
     $("#detailImg").alt = preset.name + " 건물 그림";
     $("#detailDistrict").textContent = d.emoji + " " + d.name;
-    $("#detailTier").textContent = site.tier === 2 ? "2단계 · 별관" : (isHub(site) ? "1단계 · 본부" : "1단계 · 독립");
+    $("#detailTier").textContent = site.tier === 2 ? "별관" : "본부";
     $("#detailTier").style.background = site.tier === 2 ? "var(--t2)" : "var(--t1)";
     $("#detailPin").hidden = !fav;
     $("#detailBuilding").textContent = preset.name + " · " + preset.en;
@@ -1353,7 +1623,7 @@
       if (!url || !isValidUrl(url)) { $("#fUrl").classList.add("is-invalid"); inValidate("주소를 다시 확인해 주세요. 예) https://example.com"); $("#fUrl").focus(); return; }
       const dup = allSites().find((s) => s.id !== state.editingId && normalizeUrl(s.url).replace(/\/$/, "") === url.replace(/\/$/, ""));
       if (dup) { $("#fUrl").classList.add("is-invalid"); inValidate("이미 입주한 주소예요 (" + dup.name + "). 다른 주소를 넣어 주세요."); $("#fUrl").focus(); return; }
-      if (tier === 2 && !parent) { inValidate("2단계로 입주하려면 상위 본부를 골라 주세요."); return; }
+      if (tier === 2 && !parent) { inValidate("별관으로 입주하려면 상위 본부를 골라 주세요."); return; }
       if (tier === 2 && parent) {
         const p = siteById(parent);
         if (p) district = p.district;
@@ -1381,9 +1651,9 @@
           name, url, desc, tags, repo: "",
           district, building, tier, parent: tier === 2 ? parent : null,
           pos: positionForNew(district, tier === 2 ? parent : null),
-          w: tier === 2 ? 200 : 275,
+          w: tier === 2 ? 168 : 240,
           role: tier === 2
-            ? "2단계 · " + (siteById(parent) ? siteById(parent).name : "본부") + " 하위"
+            ? "별관 · " + (siteById(parent) ? siteById(parent).name : "본부") + " 하위"
             : districtOf(district).name + " · 독립 사이트",
           custom: true,
           addedAt: new Date().toISOString()
@@ -1447,7 +1717,7 @@
     document.body.appendChild(a);
     a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
-    toast("📋 사이트 " + sites.length + "곳(1단계 " + payload.tier1 + " · 2단계 " + payload.tier2 + ")을 JSON으로 내보냈어요");
+    toast("📋 사이트 " + sites.length + "곳(본부 " + payload.tier1 + " · 별관 " + payload.tier2 + ")를 JSON으로 내보냈어요");
   }
   if ($("#exportBtn")) $("#exportBtn").addEventListener("click", exportJson);
   if ($("#formExportBtn")) $("#formExportBtn").addEventListener("click", exportJson);
@@ -1458,7 +1728,7 @@
   function tourStops() {
     const stops = [{
       key: "entrance", cx: 1180, cy: 1400, s: 0.95,
-      title: "마을 입구", desc: "어서 오세요, 쿠사리 타운입니다. 강을 건너 오솔길을 따라 여행 지구 본부로 올라가 볼까요?"
+      title: "마을 입구", desc: "어서 오세요, 쿠사리 빌리지입니다. 강을 건너 오솔길을 따라 여행 지구 본부로 올라가 볼까요?"
     }];
     const order = ["travel", "creative", "work", "sprout"];
     order.forEach((did) => {
@@ -1467,16 +1737,16 @@
         stops.push({
           key: hub.id, site: hub, s: kids.length ? 0.82 : 0.95,
           title: hub.name,
-          desc: (kids.length ? "1단계 본부 · 하위 " + kids.length + "개 연결 — " : "1단계 독립 사이트 — ") + (hub.desc || roleOf(hub))
+          desc: (kids.length ? "본부 · 별관 " + kids.length + "개 연결 — " : "본부 · 독립 사이트 — ") + (hub.desc || roleOf(hub))
         });
         kids.forEach((k) => stops.push({
           key: k.id, site: k, s: 1.02,
           title: k.name,
-          desc: "2단계 · " + hub.name + "에서 이어진 별관 — " + (k.desc || roleOf(k))
+          desc: "별관 · " + hub.name + "에서 이어진 건물 — " + (k.desc || roleOf(k))
         }));
       });
     });
-    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "1단계 5곳과 2단계 4곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
+    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 5곳과 별관 4곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
     return stops;
   }
 
@@ -1538,7 +1808,7 @@
     if (st.site) {
       const f = siteFocus(st.site);
       panTo(f.cx, f.cy, dZoom(f.s), 1200);
-      showBubble(st.site.id, st.site.tier === 2 ? "2단계 · 별관" : (isHub(st.site) ? "1단계 · 본부 · 하위 " + childrenOf(st.site.id).length + "개" : "1단계 · 독립 사이트"));
+      showBubble(st.site.id, st.site.tier === 2 ? "별관 · 본부에 연결" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
       openBtn.onclick = () => { window.location.href = st.site.url; };
@@ -1751,6 +2021,7 @@
         }
       }
     }
+    drawFx(dt);
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
@@ -1795,7 +2066,10 @@
   window.__KV = {
     state, sites: allSites, focusSite, startTour, stopTour, enterWalk, exitWalk,
     setView, openDetail, openForm, panTo, applyCam, goToSite,
+    applyTime, applyWeather, phaseOfNow, phaseNow, loadWeather,
     get cam() { return state.cam; },
-    get tour() { return state.tour; }
+    get tour() { return state.tour; },
+    get fx() { return fxKind; },
+    get weather() { return state.wx; }
   };
 })();

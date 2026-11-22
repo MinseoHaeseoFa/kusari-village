@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 타운 v3 · 기본 입주 명단 (KUSARI VILLAGE · sites)
+   🏡 쿠사리 빌리지 v4 · 기본 입주 명단 (KUSARI VILLAGE · sites)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1660) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -9,13 +9,14 @@
 
    · district : travel | creative | work | sprout
    · building : presets 배열의 id (건물 그림 12종)
-   · tier     : 1 = 1단계(독립 사이트 · 본부) / 2 = 2단계(본부 하위 연결)
+   · tier     : 1 = 본부(독립 사이트) / 2 = 별관(본부 하위 연결)
+              ※ tier 값은 내부 구분용입니다. 화면에는 `본부`·`별관`으로만 보입니다.
    · parent   : tier 2 일 때 상위 본부 사이트의 id
    · pos      : [x, y] 마을 지도 위 발밑 좌표 (생략하면 자동 배치)
    · role     : 명패에 들어가는 한 줄 역할 (예: "여행 지구 본부 · 하위 4")
    ============================================================ */
 window.KUSARI_TOWN = {
-  version: 3,
+  version: 4,
   updated: "2026-11-22",
   world: { w: 2400, h: 1660 },
 
@@ -31,7 +32,7 @@ window.KUSARI_TOWN = {
       accent2: "#E9B98C",
       tint: "#FDEFDF",
       zone: { cx: 1010, cy: 520, rx: 640, ry: 470 },
-      look: { cx: 1010, cy: 470, s: 0.82 },
+      look: { cx: 1010, cy: 500, s: 0.82 },
       slots: [[1330, 830], [880, 700], [1290, 980], [700, 300], [1340, 300]]
     },
     {
@@ -93,60 +94,60 @@ window.KUSARI_TOWN = {
 
   /* ── 기본 입주 사이트 9곳 ─────────────────────── */
   sites: [
-    /* 1단계 · 여행 지구 본부 (하위 4개를 거느림) */
+    /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
-      district: "travel", building: "travel-hub", tier: 1, parent: null, pos: [1010, 566], w: 340,
-      role: "여행 지구 본부 · 하위 4개 연결",
+      district: "travel", building: "travel-hub", tier: 1, parent: null, pos: [1010, 566], w: 300,
+      role: "여행 지구 본부 · 별관 4개 연결",
       desc: "다녀온 국내·세계 여행지를 색으로 채워가는 나만의 지도 허브. 아래 4개 Trail Log와 플래너가 모두 이 본부에서 이어집니다.",
-      tags: ["여행 허브", "색칠 지도", "1단계 본부"] },
+      tags: ["여행 허브", "색칠 지도", "본부"] },
 
-    /* 2단계 · 나의 여행 지도 산하 별관 4곳 */
+    /* 별관 · 나의 여행 지도 산하 4곳 */
     { id: "korea-travel-map", name: "대한민국 Trail Log", url: "https://korea-travel-map-ebon.vercel.app/", repo: "korea-travel-map",
-      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [620, 272], w: 205,
+      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [792, 302], w: 170,
       role: "본부 별관 · 대한민국 기록",
       desc: "전국 167개 시·군의 명소를 따라가며 남기는 국내 여행 기록. 나의 여행 지도에서 이어집니다.",
       tags: ["국내 여행", "167개 시·군", "Trail Log"] },
 
     { id: "world-travel-map", name: "세계 여행 Trail Log", url: "https://world-travel-map-blush.vercel.app/", repo: "world-travel-map",
-      district: "travel", building: "lighthouse", tier: 2, parent: "my-travel-map", pos: [1408, 858], w: 205,
+      district: "travel", building: "lighthouse", tier: 2, parent: "my-travel-map", pos: [1240, 812], w: 170,
       role: "본부 별관 · 세계 기록",
       desc: "세계 지도를 한 칸씩 채우며 쌓는 해외 여행의 발자취. 나의 여행 지도에서 이어집니다.",
       tags: ["세계 여행", "국가별 기록", "Trail Log"] },
 
     { id: "mountain-travel-map", name: "100대 명산 Trail Log", url: "https://mountain-travel-map.vercel.app/", repo: "mountain-travel-map",
-      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [1340, 262], w: 205,
+      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [1228, 304], w: 170,
       role: "본부 별관 · 명산 기록",
       desc: "100대 명산 완등을 향한 산행 기록과 산행지 안내. 나의 여행 지도에서 이어집니다.",
       tags: ["100대 명산", "등산 기록", "Trail Log"] },
 
     { id: "my-travel-planner", name: "나의 여행 플래너", url: "https://my-travel-planner-kohl.vercel.app/", repo: "my-travel-planner",
-      district: "travel", building: "train-station", tier: 2, parent: "my-travel-map", pos: [606, 862], w: 205,
+      district: "travel", building: "train-station", tier: 2, parent: "my-travel-map", pos: [784, 806], w: 170,
       role: "본부 별관 · 여행 계획",
       desc: "출발·귀환 교통부터 숙소와 동선까지, 7개 탭으로 짜는 여행 계획. 나의 여행 지도에서 이어집니다.",
       tags: ["여행 계획", "숙소·동선", "Trail Log"] },
 
-    /* 1단계 · 창작 골목 독립 사이트 2곳 */
+    /* 본부 · 창작 골목 독립 사이트 2곳 */
     { id: "life-film-photo-guide", name: "인생이라는 필름", url: "https://life-film-photo-guide.vercel.app/", repo: "life-film-photo-guide",
-      district: "creative", building: "film-lab", tier: 1, parent: null, pos: [1720, 700], w: 290,
+      district: "creative", building: "film-lab", tier: 1, parent: null, pos: [1720, 700], w: 258,
       role: "창작 골목 · 독립 사이트",
       desc: "촬영 팁 100장과 실제 사진으로 배우는 인생 사진 가이드. 창작 골목의 독립 사이트입니다.",
       tags: ["사진", "촬영 가이드", "100장"] },
 
     { id: "my-prompt-studio", name: "나만의 프롬프트 스튜디오", url: "https://my-prompt-studio-mu.vercel.app/", repo: "my-prompt-studio",
-      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2000, 890], w: 290,
+      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2000, 890], w: 258,
       role: "창작 골목 · 독립 사이트",
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
 
-    /* 1단계 · 업무 광장 독립 사이트 2곳 */
+    /* 본부 · 업무 광장 독립 사이트 2곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
-      district: "work", building: "library", tier: 1, parent: null, pos: [400, 1290], w: 300,
+      district: "work", building: "library", tier: 1, parent: null, pos: [400, 1290], w: 262,
       role: "업무 광장 · 독립 사이트",
       desc: "공공·출연연 감사 그레이존 판단 사례 710건을 4단계로 정리한 DB.",
       tags: ["내부감사", "사례 710건", "판단 기준"] },
 
     { id: "kitech-audit", name: "KITECH-Audit 포털", url: "https://kitech-audit.vercel.app/", repo: "KITECH-Audit",
-      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [780, 1360], w: 300,
+      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [780, 1360], w: 262,
       role: "업무 광장 · 독립 사이트",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] }
