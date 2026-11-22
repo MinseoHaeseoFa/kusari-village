@@ -356,13 +356,13 @@ html[data-theme="sunset"] .btn--soft{color:#FFD2B0}
   display:flex;gap:6px;align-items:center;
   max-width:min(92vw,880px);
   padding:5px 6px;border-radius:999px;
-  background:rgba(255,252,245,.94);
+  background:rgba(255,252,245,.97);
   border:1.5px solid var(--line);
   box-shadow:var(--shadow-m);
   overflow-x:auto;scrollbar-width:none;
 }
 .hud::-webkit-scrollbar{display:none}
-html[data-theme="sunset"] .hud{background:rgba(43,35,55,.94);border-color:var(--line)}
+html[data-theme="sunset"] .hud{background:rgba(43,35,55,.97);border-color:var(--line)}
 .hud__chip{
   border:0;background:none;cursor:pointer;
   display:inline-flex;align-items:center;gap:5px;
@@ -385,11 +385,11 @@ html[data-theme="sunset"] .hud{background:rgba(43,35,55,.94);border-color:var(--
   position:fixed;left:20px;bottom:20px;z-index:var(--z-ui);
   display:flex;align-items:center;gap:5px;
   padding:7px;border-radius:18px;
-  background:rgba(255,252,245,.94);
+  background:rgba(255,252,245,.97);
   border:1.5px solid var(--line);
   box-shadow:var(--shadow-m);
 }
-html[data-theme="sunset"] .dock{background:rgba(47,38,60,.94);border-color:var(--line)}
+html[data-theme="sunset"] .dock{background:rgba(47,38,60,.97);border-color:var(--line)}
 .dock__btn{
   display:inline-flex;align-items:center;gap:6px;
   border:1.5px solid transparent;background:transparent;cursor:pointer;
@@ -409,14 +409,14 @@ body[data-mode="walk"] .dock{display:none}
 .minimap{
   position:fixed;right:20px;bottom:20px;z-index:var(--z-ui);
   width:258px;
-  background:rgba(255,252,245,.96);
+  background:#FFFCF5;
   border:1.5px solid var(--line);
   border-radius:18px;
   box-shadow:var(--shadow-m);
   overflow:hidden;
   transition:width .22s ease;
 }
-html[data-theme="sunset"] .minimap{background:rgba(47,38,60,.96);border-color:var(--line)}
+html[data-theme="sunset"] .minimap{background:#2F263C;border-color:var(--line)}
 .minimap__head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 4px}
 .minimap__title{font-size:10.5px;font-weight:900;letter-spacing:.1em;color:var(--ink-mute)}
 .minimap__fold{border:0;background:none;cursor:pointer;font-size:12px;color:var(--ink-mute);padding:2px 6px;border-radius:6px}
