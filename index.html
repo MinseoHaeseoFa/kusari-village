@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>쿠사리 타운 v2 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
-<meta name="description" content="쿠사리님이 만든 웹앱 9곳이 하나의 2.5D 마을에 모여 삽니다. 1단계 본부와 2단계 별관의 계층을 지도 위에서 한눈에 보고, 자동 투어·직접 걷기로 둘러보세요." />
-<meta name="theme-color" content="#EFE3CD" />
+<title>쿠사리 타운 v3 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
+<meta name="description" content="쿠사리님이 만든 웹앱 9곳이 하나의 2.5D 마을에 모여 삽니다. 초록 마을이 화면을 가득 채우고, 건물을 누르면 그 사이트로 바로 이동합니다." />
+<meta name="theme-color" content="#8FB069" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="쿠사리 타운 v2 · Kusari Village" />
+<meta property="og:title" content="쿠사리 타운 v3 · Kusari Village" />
 <meta property="og:description" content="내 사이트들이 모여 사는 2.5D 마을. 1단계 본부 · 2단계 별관의 계층을 지도 위에서 한눈에." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A1%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="assets/css/style.css" />
@@ -103,6 +103,7 @@
 <div class="stage" id="stage" aria-label="쿠사리 타운 마을 지도">
   <div class="world" id="world">
     <svg class="terrain" id="terrain" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
+    <div class="sun" aria-hidden="true"></div>
     <svg class="links" id="links" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
     <div class="blds" id="blds"></div>
     <div class="avatar" id="avatar" aria-hidden="true">
@@ -126,12 +127,10 @@
       </div>
       <span class="avatar__tag">김비서</span>
     </div>
-    <div class="world__grain" aria-hidden="true"></div>
     <div class="world__sunset" aria-hidden="true"></div>
     <div class="world__glow" aria-hidden="true"></div>
     <div class="fireflies" aria-hidden="true"></div>
   </div>
-  <div class="sun" aria-hidden="true"></div>
   <div class="stage__vignette" aria-hidden="true"></div>
 </div>
 
@@ -141,7 +140,7 @@
     <span class="brand__mark" aria-hidden="true">🏡</span>
     <span class="brand__text">
       <strong>쿠사리 타운</strong>
-      <small>KUSARI VILLAGE <b>v2</b></small>
+      <small>KUSARI VILLAGE <b>v3</b></small>
     </span>
   </a>
 
@@ -221,7 +220,7 @@
 
 <!-- ── 첫 방문 안내 ────────────────────────────────────────── -->
 <div class="coach" id="coach" hidden>
-  <p><b>2.5D 마을</b>이 열렸어요. 끌어서 둘러보고, 건물을 누르면 소개와 바로가기가 열립니다.</p>
+  <p><b>2.5D 마을</b>이 열렸어요. 끌어서 둘러보고, 건물을 누르면 그 사이트로 바로 이동합니다.</p>
   <div class="coach__acts">
     <button type="button" class="btn btn--soft btn--sm" id="coachTour">▶ 자동 투어로 둘러보기</button>
     <button type="button" class="btn btn--quiet btn--sm" data-close-coach>그냥 볼래요</button>
@@ -238,7 +237,7 @@
       <h1 class="deckview__title">마을 사이트 목록</h1>
       <p class="deckview__lead">
         대등한 9개 나열이 아니라 <b>1단계 5곳</b>이 중심이고, <b>나의 여행 지도</b> 아래에
-        <b>2단계 4곳</b>이 매달려 있어요. 카드를 누르면 소개와 바로가기가 열립니다.
+        <b>2단계 4곳</b>이 매달려 있어요. 카드의 <b>열기</b>는 이 탭에서 바로 열리고, 소개는 <b>정보</b> 버튼에서 봅니다.
       </p>
       <div class="depthkey">
         <span class="depthkey__item depthkey__item--1"><i>1</i> 1단계 · 독립 사이트 / 본부 <b id="keyT1">0</b></span>
@@ -293,10 +292,10 @@
 
       <div class="depthbox" id="detailDepth"></div>
 
-      <p class="sheet__url"><a id="detailUrl" href="#" target="_blank" rel="noopener"></a></p>
+      <p class="sheet__url"><a id="detailUrl" href="#"></a></p>
 
       <div class="sheet__actions">
-        <a class="btn btn--primary" id="detailOpen" href="#" target="_blank" rel="noopener">🚀 사이트 열기</a>
+        <a class="btn btn--primary" id="detailOpen" href="#">🚀 사이트 열기</a>
         <a class="btn btn--ghost" id="detailRepo" href="#" target="_blank" rel="noopener">GitHub ↗</a>
         <button type="button" class="btn btn--ghost" id="detailFav" aria-pressed="false">⭐ 즐겨찾기</button>
       </div>

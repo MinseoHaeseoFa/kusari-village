@@ -81,6 +81,14 @@
 
   function allSites() { return BASE_SITES.concat(state.custom); }
   function siteById(id) { return allSites().find((s) => s.id === id) || null; }
+
+  /* 사이트로 바로 이동 — 모달 없이 같은 탭(_self) */
+  function goToSite(site) {
+    if (!site || !site.url) return;
+    if (state.tour.on) stopTour();
+    hideCoach();
+    window.location.href = site.url;
+  }
   function isFav(id) { return state.favs.indexOf(id) > -1; }
   function childrenOf(id) { return allSites().filter((s) => s.tier === 2 && s.parent === id); }
   function isHub(site) { return childrenOf(site.id).length > 0; }
@@ -134,33 +142,34 @@
   const stage = $("#stage");
   const world = $("#world");
   let vw = window.innerWidth, vh = window.innerHeight;
+  const MAX_S = 2.0;
   let minScale = 0.3;
   let camAnim = null;
 
   const isNarrow = () => vw < 760;
   function fitScale() { return Math.min(vw / W.w, vh / W.h); }
+  /* 지도가 화면을 꽉 채우는 최소 배율(cover) — 지도 바깥 배경이 드러나지 않는다 */
+  function coverScale() { return Math.max(vw / W.w, vh / W.h) * 1.004; }
   function dZoom(base) { return Math.max(minScale, base * (isNarrow() ? 0.62 : 1)); }
 
   function clampCam() {
-    /* 가장자리 건물의 말풍선까지 화면 안에 담기도록 지도 밖 여백을 조금 허용한다 (디오라마 느낌) */
-    const padX = 90, padY = 210;
+    /* 풀스크린: 지도 가장자리가 화면 밖으로 나가도록만 클램핑한다 (바깥 배경 노출 0) */
     const visW = vw / state.cam.s, visH = vh / state.cam.s;
-    if (visW >= W.w + padX * 2) state.cam.cx = W.w / 2;
-    else state.cam.cx = clamp(state.cam.cx, visW / 2 - padX, W.w - visW / 2 + padX);
-    if (visH >= W.h + padY * 2) state.cam.cy = W.h / 2;
-    else state.cam.cy = clamp(state.cam.cy, visH / 2 - padY, W.h - visH / 2 + padY);
+    state.cam.cx = visW >= W.w ? W.w / 2 : clamp(state.cam.cx, visW / 2, W.w - visW / 2);
+    state.cam.cy = visH >= W.h ? W.h / 2 : clamp(state.cam.cy, visH / 2, W.h - visH / 2);
   }
 
   let miniViewEl = null;
+  let zoomTag = null;
   function applyCam() {
-    state.cam.s = clamp(state.cam.s, minScale, 2.6);
+    state.cam.s = clamp(state.cam.s, minScale, MAX_S);
     clampCam();
     const s = state.cam.s;
     const tx = vw / 2 - state.cam.cx * s;
     const ty = vh / 2 - state.cam.cy * s;
     world.style.transform = "translate3d(" + tx.toFixed(2) + "px," + ty.toFixed(2) + "px,0) scale(" + s.toFixed(4) + ")";
-    world.style.setProperty("--inv", Math.min(1 / s, 2.2).toFixed(4));
-    world.dataset.zoom = s < 0.34 ? "tiny" : (s < 0.66 ? "far" : (s < 1.06 ? "mid" : "near"));
+    const tag = s < 0.34 ? "tiny" : (s < 0.46 ? "far" : (s < 0.95 ? "mid" : "near"));
+    if (tag !== zoomTag) { world.dataset.zoom = tag; zoomTag = tag; }
     updateMiniView();
   }
 
@@ -173,7 +182,7 @@
   function panTo(cx, cy, s, dur) {
     dur = dur == null ? 1000 : dur;
     const from = { cx: state.cam.cx, cy: state.cam.cy, s: state.cam.s };
-    const to = { cx: cx, cy: cy, s: clamp(s || state.cam.s, minScale, 2.6) };
+    const to = { cx: cx, cy: cy, s: clamp(s || state.cam.s, minScale, MAX_S) };
     if (dur <= 0) { setCenter(to.cx, to.cy, to.s); return; }
     cancelAnimationFrame(camAnim);
     const t0 = performance.now();
@@ -191,27 +200,27 @@
 
   function resize() {
     vw = window.innerWidth; vh = window.innerHeight;
-    minScale = fitScale() * 0.98;
+    minScale = coverScale();
+    if (state.cam.s < minScale) state.cam.s = minScale;
     applyCam();
   }
   window.addEventListener("resize", () => { resize(); });
 
   /* 초기 카메라 */
   (function initCam() {
-    const fit = fitScale();
-    minScale = fit * 0.98;
+    minScale = coverScale();
     if (isNarrow()) {
-      state.cam.s = Math.max(fit, (vh / W.h) * 1.01);
-      state.cam.cx = 1010; state.cam.cy = 760;
+      state.cam.s = minScale * 1.16;
+      state.cam.cx = 1010; state.cam.cy = 700;
     } else {
-      state.cam.s = fit * 1.12;
-      state.cam.cx = 1180; state.cam.cy = 1460;
+      state.cam.s = Math.max(minScale, fitScale() * 1.15);
+      state.cam.cx = 1180; state.cam.cy = 900;
     }
     applyCam();
     setTimeout(() => {
-      if (isNarrow()) panTo(1010, 780, Math.max(fit, (vh / W.h) * 1.01), 1000);
-      else panTo(W.w / 2, W.h / 2, fit, 1100);
-    }, 120);
+      if (isNarrow()) panTo(1010, 780, minScale, 1100);
+      else panTo(W.w / 2, 830, minScale, 1200);
+    }, 140);
   })();
 
   /* ── 드래그 · 휠 · 핀치 ───────────────────────────────── */
@@ -262,7 +271,7 @@
       const dist = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
       const mid = { x: (p[0].x + p[1].x) / 2, y: (p[0].y + p[1].y) / 2 };
       if (pinchDist > 0) {
-        const nextS = clamp(pinchS * (dist / pinchDist), minScale, 2.6);
+        const nextS = clamp(pinchS * (dist / pinchDist), minScale, MAX_S);
         if (lastMid) {
           state.cam.cx -= (mid.x - lastMid.x) / state.cam.s;
           state.cam.cy -= (mid.y - lastMid.y) / state.cam.s;
@@ -294,7 +303,7 @@
     const rect = stage.getBoundingClientRect();
     const px = e.clientX - rect.left, py = e.clientY - rect.top;
     const s0 = state.cam.s;
-    const s1 = clamp(s0 * Math.exp(-e.deltaY * 0.0016), minScale, 2.6);
+    const s1 = clamp(s0 * Math.exp(-e.deltaY * 0.0016), minScale, MAX_S);
     const wx = state.cam.cx + (px - vw / 2) / s0;
     const wy = state.cam.cy + (py - vh / 2) / s0;
     state.cam.s = s1;
@@ -423,11 +432,16 @@
         <stop offset=".55" stop-color="#86AC66"/>
         <stop offset="1" stop-color="#5F8245"/>
       </radialGradient>
-      <filter id="blur18" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="18"/></filter>
-      <filter id="blur40" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="40"/></filter>
-      <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#4A3A26" flood-opacity=".28"/>
-      </filter>
+      <radialGradient id="gShade" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#6F8B4E" stop-opacity=".26"/>
+        <stop offset=".55" stop-color="#6F8B4E" stop-opacity=".18"/>
+        <stop offset="1" stop-color="#6F8B4E" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="gShadeDark" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#37503C" stop-opacity=".34"/>
+        <stop offset=".6" stop-color="#37503C" stop-opacity=".22"/>
+        <stop offset="1" stop-color="#37503C" stop-opacity="0"/>
+      </radialGradient>
     </defs>
 
     <!-- 잔디 바탕 -->
@@ -436,12 +450,12 @@
     <rect width="${W.w}" height="${W.h}" fill="url(#pGrass)"/>
 
     <!-- 완만한 언덕 -->
-    <ellipse cx="360" cy="150" rx="620" ry="330" fill="url(#gHill)" filter="url(#blur40)"/>
-    <ellipse cx="2080" cy="230" rx="560" ry="300" fill="url(#gHill)" filter="url(#blur40)"/>
-    <ellipse cx="2200" cy="1420" rx="520" ry="280" fill="url(#gHill)" filter="url(#blur40)"/>
-    <ellipse cx="240" cy="1240" rx="420" ry="300" fill="url(#gHill)" filter="url(#blur40)"/>
-    <ellipse cx="1200" cy="1590" rx="700" ry="220" fill="url(#gMeadow)" filter="url(#blur40)"/>
-    <ellipse cx="1500" cy="700" rx="420" ry="300" fill="url(#gMeadow)" filter="url(#blur40)"/>
+    <ellipse cx="360" cy="150" rx="620" ry="330" fill="url(#gHill)"/>
+    <ellipse cx="2080" cy="230" rx="560" ry="300" fill="url(#gHill)"/>
+    <ellipse cx="2200" cy="1420" rx="520" ry="280" fill="url(#gHill)"/>
+    <ellipse cx="240" cy="1240" rx="420" ry="300" fill="url(#gHill)"/>
+    <ellipse cx="1200" cy="1590" rx="700" ry="220" fill="url(#gMeadow)"/>
+    <ellipse cx="1500" cy="700" rx="420" ry="300" fill="url(#gMeadow)"/>
 
     <!-- 지구 권역 -->
     ${zones}
@@ -460,13 +474,13 @@
     ${roadSvg}
 
     <!-- 광장 -->
-    <ellipse cx="1010" cy="608" rx="298" ry="150" fill="#6F8B4E" opacity=".22" filter="url(#blur18)"/>
+    <ellipse cx="1010" cy="608" rx="298" ry="150" fill="url(#gShade)"/>
     <ellipse cx="1010" cy="606" rx="244" ry="120" fill="url(#gPlaza)"/>
     <ellipse cx="1010" cy="606" rx="244" ry="120" fill="url(#pStone)" opacity=".42"/>
     <ellipse cx="1010" cy="606" rx="244" ry="120" fill="none" stroke="#BFA981" stroke-width="5"/>
     <ellipse cx="1010" cy="606" rx="204" ry="102" fill="none" stroke="#BFA981" stroke-opacity=".5" stroke-width="3" stroke-dasharray="14 16"/>
 
-    <ellipse cx="592" cy="1326" rx="336" ry="152" fill="#6F8B4E" opacity=".22" filter="url(#blur18)"/>
+    <ellipse cx="592" cy="1326" rx="336" ry="152" fill="url(#gShade)"/>
     <ellipse cx="592" cy="1324" rx="338" ry="154" fill="url(#gPlaza)"/>
     <ellipse cx="592" cy="1324" rx="338" ry="154" fill="url(#pStone)" opacity=".4"/>
     <ellipse cx="592" cy="1324" rx="338" ry="154" fill="none" stroke="#BFA981" stroke-width="5"/>
@@ -485,7 +499,7 @@
 
     <!-- 다리 -->
     <g>
-      <ellipse cx="1180" cy="1052" rx="124" ry="44" fill="#37503C" opacity=".3" filter="url(#blur18)"/>
+      <ellipse cx="1180" cy="1052" rx="124" ry="44" fill="url(#gShadeDark)"/>
       <rect x="1096" y="940" width="168" height="204" rx="18" fill="#B79E76"/>
       <rect x="1104" y="948" width="152" height="188" rx="14" fill="#E7DBBE"/>
       <rect x="1104" y="948" width="152" height="188" rx="14" fill="url(#pStone)" opacity=".5"/>
@@ -505,7 +519,7 @@
 
     <!-- 입구 아치 -->
     <g>
-      <ellipse cx="1180" cy="1570" rx="160" ry="26" fill="#37503C" opacity=".3" filter="url(#blur18)"/>
+      <ellipse cx="1180" cy="1570" rx="160" ry="26" fill="url(#gShadeDark)"/>
       <rect x="1064" y="1436" width="32" height="140" rx="14" fill="#D3B486"/>
       <rect x="1064" y="1436" width="11" height="140" rx="5" fill="#C6A575"/>
       <rect x="1264" y="1436" width="32" height="140" rx="14" fill="#D3B486"/>
@@ -568,9 +582,10 @@
     const hub = tier === 1 && isHub(site);
     const role = roleOf(site);
     return `
-      <button type="button" class="bld" data-id="${esc(site.id)}" data-tier="${tier}" data-hub="${hub}"
+      <button type="button" class="bld" data-id="${esc(site.id)}" data-tier="${tier}" data-hub="${hub}" data-href="${esc(site.url)}"
               style="--x:${p.x};--y:${p.y};--w:${w};z-index:${Math.round(p.y)}"
-              aria-label="${esc(site.name)}. ${esc(role)}. 자세히 보기">
+              aria-label="${esc(site.name)}. ${esc(role)}. 사이트로 이동"
+              title="${esc(site.name)} — 누르면 바로 이동">
         <span class="bld__pad" aria-hidden="true"></span>
         <img class="bld__img" src="${esc(preset.img)}" alt="${esc(preset.name)} 건물 그림"
              width="${preset.w || 760}" height="${preset.h || 700}" decoding="async">
@@ -644,22 +659,25 @@
   function bindBldEvents() {
     if (!bldsEl) return;
     bldsEl.onclick = (e) => {
+      /* 드래그로 지도를 옮긴 직후의 손 떼임은 클릭으로 보지 않는다 */
       if (dragMoved > 6) return;
       const add = e.target.closest("[data-add]");
       if (add) { stopTour(); openForm("add", null, add.dataset.add); return; }
       const b = e.target.closest(".bld[data-id]");
       if (!b) return;
-      if (state.mode === "walk") {
-        const site = siteById(b.dataset.id);
-        if (site) openDetail(site.id);
-        return;
-      }
-      openDetail(b.dataset.id);
+      const site = siteById(b.dataset.id);
+      if (!site) return;
+      /* 건물을 누르면 설명 모달 없이 그 사이트로 바로 이동 (같은 탭) */
+      goToSite(site);
     };
     bldsEl.onkeydown = (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       const b = e.target.closest(".bld[data-id]");
-      if (b && e.target === b) { e.preventDefault(); openDetail(b.dataset.id); }
+      if (b && e.target === b) {
+        e.preventDefault();
+        const site = siteById(b.dataset.id);
+        if (site) goToSite(site);
+      }
     };
   }
 
@@ -827,8 +845,8 @@
         <span class="tree__role">2단계 · ${esc(roleOf(child))}</span>
       </span>
       <span class="tree__acts">
-        <a class="tree__open" href="${esc(child.url)}" target="_blank" rel="noopener" aria-label="${esc(child.name)} 열기">열기 ↗</a>
-        <button type="button" class="tree__open" data-open="${esc(child.id)}">자세히</button>
+        <a class="tree__open" href="${esc(child.url)}" aria-label="${esc(child.name)} 열기">열기 ↗</a>
+        <button type="button" class="tree__open" data-open="${esc(child.id)}" aria-label="${esc(child.name)} 정보">ℹ️</button>
       </span>
     </li>`;
   }
@@ -854,9 +872,9 @@
           <span class="card__dist" style="color:${d.accent}"><i></i>${d.emoji} ${esc(d.name)}</span>
           <p class="card__desc">${esc(hub.desc || "아직 소개 글이 없어요.")}</p>
           <div class="card__foot">
-            <a class="card__open" href="${esc(hub.url)}" target="_blank" rel="noopener">열기 ↗</a>
+            <a class="card__open" href="${esc(hub.url)}" aria-label="${esc(hub.name)} 열기">열기 ↗</a>
             ${repo ? `<a class="card__repo" href="${esc(repo)}" target="_blank" rel="noopener" aria-label="GitHub 저장소">${GH_ICON}</a>` : ""}
-            <button type="button" class="card__more" data-open="${esc(hub.id)}">자세히</button>
+            <button type="button" class="card__more" data-open="${esc(hub.id)}" aria-label="${esc(hub.name)} 정보 보기">ℹ️ 정보</button>
           </div>
         </div>
         ${showTree ? `<div class="tree">
@@ -894,9 +912,9 @@
           ${parent ? `<span class="card__parentlink" style="margin-top:4px">⬆️ ${esc(parent.name)}</span>` : ""}
           <p class="card__desc">${esc(site.desc || "아직 소개 글이 없어요.")}</p>
           <div class="card__foot">
-            <a class="card__open" href="${esc(site.url)}" target="_blank" rel="noopener">열기 ↗</a>
+            <a class="card__open" href="${esc(site.url)}" aria-label="${esc(site.name)} 열기">열기 ↗</a>
             ${repo ? `<a class="card__repo" href="${esc(repo)}" target="_blank" rel="noopener" aria-label="GitHub 저장소">${GH_ICON}</a>` : ""}
-            <button type="button" class="card__more" data-open="${esc(site.id)}">자세히</button>
+            <button type="button" class="card__more" data-open="${esc(site.id)}" aria-label="${esc(site.name)} 정보 보기">ℹ️ 정보</button>
           </div>
         </div>
       </article>`;
@@ -1069,7 +1087,7 @@
               <span class="depthbox__branch" aria-hidden="true">${i === kids.length - 1 ? "└─" : "├─"}</span>
               <span class="depthbox__thumb"><img src="${esc(kp.img)}" alt="" width="30" height="30" loading="lazy"></span>
               <button type="button" class="depthbox__name" data-goto="${esc(k.id)}">${esc(k.name)}<span class="depthbox__role">${esc(roleOf(k))}</span></button>
-              <a class="depthbox__open" href="${esc(k.url)}" target="_blank" rel="noopener">열기 ↗</a>
+              <a class="depthbox__open" href="${esc(k.url)}" aria-label="${esc(k.name)} 열기">열기 ↗</a>
             </li>`;
           }).join("")}
         </ul>
@@ -1458,7 +1476,7 @@
         }));
       });
     });
-    stops.push({ key: "overview", cx: W.w / 2, cy: W.h / 2, s: fitScale(), title: "마을 한 바퀴 완료", desc: "1단계 5곳과 2단계 4곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
+    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "1단계 5곳과 2단계 4곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
     return stops;
   }
 
@@ -1523,7 +1541,7 @@
       showBubble(st.site.id, st.site.tier === 2 ? "2단계 · 별관" : (isHub(st.site) ? "1단계 · 본부 · 하위 " + childrenOf(st.site.id).length + "개" : "1단계 · 독립 사이트"));
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
-      openBtn.onclick = () => window.open(st.site.url, "_blank", "noopener");
+      openBtn.onclick = () => { window.location.href = st.site.url; };
     } else {
       $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
       panTo(st.cx, st.cy, dZoom(st.s), 1300);
@@ -1592,7 +1610,7 @@
   }
   if ($("#walkBtn")) $("#walkBtn").addEventListener("click", () => { if (state.mode === "walk") exitWalk(); else enterWalk(); });
   if ($("#walkExit")) $("#walkExit").addEventListener("click", exitWalk);
-  if ($("#walkEnterBtn")) $("#walkEnterBtn").addEventListener("click", () => { if (state.nearId) openDetail(state.nearId); });
+  if ($("#walkEnterBtn")) $("#walkEnterBtn").addEventListener("click", () => { if (state.nearId) goToSite(siteById(state.nearId)); });
 
   function blocked(x, y) {
     if (x < 90 || x > W.w - 90 || y < 210 || y > W.h - 60) return true;
@@ -1619,12 +1637,12 @@
     if (e.target.matches("input,textarea,select")) return;
     if (anyModalOpen()) return;
     if (state.mode === "walk") {
-      if (e.key === "Enter" && state.nearId) { e.preventDefault(); openDetail(state.nearId); return; }
+      if (e.key === "Enter" && state.nearId) { e.preventDefault(); goToSite(siteById(state.nearId)); return; }
       if (KEYMAP[e.key]) { keys.add(e.key); e.preventDefault(); state.walk.target = null; return; }
     } else {
       if (e.key === "+" || e.key === "=") { zoomBy(1.25); return; }
       if (e.key === "-") { zoomBy(0.8); return; }
-      if (e.key === "0") { panTo(W.w / 2, W.h / 2, fitScale(), 700); return; }
+      if (e.key === "0") { panTo(W.w / 2, 830, minScale, 700); return; }
       if (e.key === "t" || e.key === "T") { if (state.tour.on) stopTour(); else startTour(); return; }
       if (e.key === "w" || e.key === "W") { enterWalk(); return; }
     }
@@ -1634,15 +1652,14 @@
 
   function zoomBy(f) {
     stopTourIfUser();
-    const s = clamp(state.cam.s * f, minScale, 2.6);
+    const s = clamp(state.cam.s * f, minScale, MAX_S);
     panTo(state.cam.cx, state.cam.cy, s, 240);
   }
   if ($("#zoomIn")) $("#zoomIn").addEventListener("click", () => zoomBy(1.3));
   if ($("#zoomOut")) $("#zoomOut").addEventListener("click", () => zoomBy(1 / 1.3));
   if ($("#zoomFit")) $("#zoomFit").addEventListener("click", () => {
     stopTourIfUser();
-    if (isNarrow()) panTo(W.w / 2, W.h / 2, fitScale(), 760);
-    else panTo(W.w / 2, W.h / 2, fitScale(), 760);
+    panTo(W.w / 2, 830, minScale, 760);
   });
 
   /* 조이스틱 */
@@ -1739,13 +1756,17 @@
   requestAnimationFrame(tick);
 
   /* ── 첫 방문 안내 ─────────────────────────────────────── */
-  function hideCoach() { const c = $("#coach"); if (c) c.hidden = true; }
+  function hideCoach() {
+    const c = $("#coach");
+    if (c) c.hidden = true;
+    document.body.classList.remove("coach-open");
+  }
   (function coach() {
     if (read(KEY.coach, false)) return;
     if (state.view !== "map") return;
     setTimeout(() => {
       if (anyModalOpen() || state.tour.on || state.mode === "walk") return;
-      const c = $("#coach"); if (c) c.hidden = false;
+      const c = $("#coach"); if (c) { c.hidden = false; document.body.classList.add("coach-open"); }
     }, 1500);
   })();
   if ($("#coach")) {
@@ -1773,7 +1794,7 @@
   /* QA 훅 */
   window.__KV = {
     state, sites: allSites, focusSite, startTour, stopTour, enterWalk, exitWalk,
-    setView, openDetail, openForm, panTo, applyCam,
+    setView, openDetail, openForm, panTo, applyCam, goToSite,
     get cam() { return state.cam; },
     get tour() { return state.tour; }
   };
