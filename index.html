@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="day">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>쿠사리 타운 · Kusari Village | 내 사이트들이 모여 사는 작은 마을</title>
+<meta name="description" content="쿠사리님이 만든 웹앱을 한눈에 모아보고, 새 사이트를 한 줄로 입주시키는 작은 마을." />
+<meta name="theme-color" content="#FAF6EE" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="쿠사리 타운 · Kusari Village" />
+<meta property="og:description" content="쿠사리님이 만든 웹앱들이 모여 사는 작은 마을. 건물을 눌러 놀러 가고, 새 사이트는 한 줄로 입주시켜요." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A1%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<!-- ── 장식용 SVG 스프라이트 (가로수·표지판·가로등) ───────────── -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <symbol id="s-tree" viewBox="0 0 48 64">
+      <ellipse cx="24" cy="59" rx="13" ry="4" fill="#000" opacity=".07"/>
+      <rect x="21" y="39" width="6" height="17" rx="3" fill="#B08968"/>
+      <circle cx="24" cy="27" r="16" fill="#8FAE78"/>
+      <circle cx="15" cy="31" r="9" fill="#9CBB85"/>
+      <circle cx="33" cy="31" r="9" fill="#7E9F68"/>
+      <circle cx="24" cy="17" r="10" fill="#A6C48F"/>
+      <circle cx="20" cy="22" r="4" fill="#BBD3A6" opacity=".8"/>
+    </symbol>
+    <symbol id="s-bush" viewBox="0 0 56 40">
+      <ellipse cx="28" cy="35" rx="16" ry="3.5" fill="#000" opacity=".06"/>
+      <circle cx="18" cy="26" r="11" fill="#96B27E"/>
+      <circle cx="35" cy="25" r="12" fill="#86A46F"/>
+      <circle cx="27" cy="20" r="10" fill="#A3BE8A"/>
+      <circle cx="22" cy="33" r="3" fill="#E7B7A0"/>
+      <circle cx="36" cy="33" r="3" fill="#EFC7B2"/>
+    </symbol>
+    <symbol id="s-sign" viewBox="0 0 48 72">
+      <ellipse cx="24" cy="67" rx="10" ry="3.4" fill="#000" opacity=".07"/>
+      <rect x="21.5" y="20" width="5" height="46" rx="2.5" fill="#B08968"/>
+      <rect x="6" y="14" width="34" height="13" rx="4" fill="#DDA77B"/>
+      <rect x="9" y="30" width="28" height="12" rx="4" fill="#F2D3B4"/>
+      <path d="M40 20.5h4l-3 3z" fill="#C9905F"/>
+      <circle cx="24" cy="38" r="2.4" fill="#B08968"/>
+    </symbol>
+    <symbol id="s-lamp" viewBox="0 0 40 76">
+      <ellipse cx="20" cy="71" rx="9" ry="3" fill="#000" opacity=".07"/>
+      <rect x="18" y="26" width="4" height="44" rx="2" fill="#A98C6E"/>
+      <path d="M12 26h16l-3-8H15z" fill="#C9A277"/>
+      <circle cx="20" cy="30" r="7" fill="#FFE9B0" class="lamp-glow"/>
+      <circle cx="20" cy="30" r="4" fill="#FFF6DA"/>
+    </symbol>
+    <symbol id="s-flower" viewBox="0 0 36 40">
+      <path d="M18 40V22" stroke="#8FAE78" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="18" cy="16" r="6" fill="#F0B7B7"/>
+      <circle cx="10" cy="20" r="4.4" fill="#F5C9C9"/>
+      <circle cx="26" cy="20" r="4.4" fill="#F5C9C9"/>
+      <circle cx="18" cy="16" r="2.6" fill="#F6D98A"/>
+    </symbol>
+    <symbol id="s-cloud" viewBox="0 0 120 54">
+      <ellipse cx="42" cy="38" rx="34" ry="15" fill="#fff"/>
+      <ellipse cx="70" cy="30" rx="28" ry="18" fill="#fff"/>
+      <ellipse cx="88" cy="40" rx="26" ry="12" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="sky" aria-hidden="true">
+  <span class="sky__sun"></span>
+  <svg class="sky__cloud sky__cloud--a"><use href="#s-cloud"/></svg>
+  <svg class="sky__cloud sky__cloud--b"><use href="#s-cloud"/></svg>
+  <div class="sky__hills"></div>
+</div>
+
+<!-- ── 상단 바 ─────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="wrap topbar__inner">
+    <a class="brand" href="#top" aria-label="쿠사리 타운 처음으로">
+      <span class="brand__mark" aria-hidden="true">🏡</span>
+      <span class="brand__text">
+        <strong>쿠사리 타운</strong>
+        <small>KUSARI VILLAGE</small>
+      </span>
+    </a>
+
+    <div class="topbar__controls">
+      <div class="segmented" role="group" aria-label="보기 방식">
+        <button type="button" class="segmented__btn is-active" data-view="map" aria-pressed="true">
+          <span aria-hidden="true">🗺️</span> 마을
+        </button>
+        <button type="button" class="segmented__btn" data-view="deck" aria-pressed="false">
+          <span aria-hidden="true">🎴</span> 앱 덱
+        </button>
+      </div>
+
+      <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" aria-label="마을 분위기 바꾸기">
+        <span class="theme-toggle__track" aria-hidden="true"><span class="theme-toggle__knob">☀️</span></span>
+        <span class="theme-toggle__label" id="themeLabel">낮</span>
+      </button>
+
+      <button type="button" class="btn btn--primary" id="addBtn">
+        <span aria-hidden="true">＋</span> <span class="btn__label">새 건물 입주</span><span class="btn__short" aria-hidden="true">입주</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- ── 인사말 ─────────────────────────────────────────────── -->
+  <section class="wrap hero">
+    <p class="hero__eyebrow">MY LITTLE WEB VILLAGE</p>
+    <h1 class="hero__title">만들어 온 사이트들이<br class="hero__br"/> 모여 사는 작은 마을</h1>
+    <p class="hero__lead" id="heroLead">마을을 한 바퀴 둘러보고, 문을 두드려 보세요.</p>
+
+    <ul class="stats" role="list">
+      <li class="stat"><span class="stat__num" id="statSites">0</span><span class="stat__label">입주한 사이트</span></li>
+      <li class="stat"><span class="stat__num" id="statDistricts">0</span><span class="stat__label">지구</span></li>
+      <li class="stat"><span class="stat__num" id="statFav">0</span><span class="stat__label">즐겨찾기 핀</span></li>
+      <li class="stat"><span class="stat__num" id="statCustom">0</span><span class="stat__label">새로 입주</span></li>
+    </ul>
+  </section>
+
+  <!-- ── 마을 지도 ──────────────────────────────────────────── -->
+  <section class="wrap view" id="view-map" aria-label="마을 지도">
+    <div class="viewhead">
+      <h2 class="viewhead__title">마을 지도</h2>
+      <p class="viewhead__hint">건물을 누르면 소개와 바로가기가 열려요 · 점선 부지로 새 사이트를 입주시킬 수 있어요</p>
+    </div>
+    <div class="districts" id="districts"></div>
+
+    <div class="mapfoot">
+      <p class="mapfoot__hint">
+        <span aria-hidden="true">💡</span> 사이트를 기본 명단에 넣고 싶다면 <code>data/sites.js</code> 의 <code>sites</code> 배열에 한 줄만 추가하면 돼요.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── 앱 덱 ──────────────────────────────────────────────── -->
+  <section class="wrap view" id="view-deck" aria-label="앱 덱" hidden>
+    <div class="viewhead">
+      <h2 class="viewhead__title">앱 덱</h2>
+      <p class="viewhead__hint">필터와 검색으로 원하는 사이트를 빠르게 찾아보세요</p>
+    </div>
+    <div class="deckbar">
+      <div class="chips" role="group" aria-label="지구 필터" id="filterChips"></div>
+      <label class="search">
+        <span class="search__icon" aria-hidden="true">🔍</span>
+        <input type="search" id="searchInput" placeholder="사이트 이름·설명·태그로 찾기" autocomplete="off" aria-label="사이트 검색" />
+        <button type="button" class="search__clear" id="searchClear" aria-label="검색어 지우기" hidden>✕</button>
+      </label>
+    </div>
+
+    <div class="deck" id="deckGrid"></div>
+
+    <div class="empty" id="deckEmpty" hidden>
+      <span class="empty__mark" aria-hidden="true">🌾</span>
+      <p class="empty__title">이 자리에는 아직 아무도 살지 않아요</p>
+      <p class="empty__desc">다른 지구를 골라 보거나, 새 건물을 입주시켜 보세요.</p>
+      <button type="button" class="btn btn--primary" data-action="add">＋ 새 건물 입주</button>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p><strong>쿠사리 타운</strong> · 만든 사이트를 한자리에 모으는 작은 마을</p>
+    <p class="footer__meta">
+      <button type="button" class="linkbtn" id="exportBtn">📋 JSON 내보내기</button>
+      <span aria-hidden="true">·</span>
+      <span>건물 그림 12종 · <span id="footerCount">0</span>채 입주</span>
+    </p>
+  </div>
+</footer>
+
+<!-- ── 건물 상세 시트 ───────────────────────────────────────── -->
+<div class="modal" id="detailModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="sheet sheet--detail" role="dialog" aria-modal="true" aria-labelledby="detailTitle" tabindex="-1">
+    <button type="button" class="sheet__close" data-close aria-label="닫기">✕</button>
+    <div class="sheet__media">
+      <img class="sheet__img" id="detailImg" src="assets/buildings/travel-hub.webp" alt="" />
+      <span class="sheet__district" id="detailDistrict"></span>
+      <span class="sheet__pin" id="detailPin" hidden>⭐ 즐겨찾기</span>
+    </div>
+    <div class="sheet__body">
+      <p class="sheet__kicker" id="detailBuilding"></p>
+      <h2 class="sheet__title" id="detailTitle"></h2>
+      <p class="sheet__desc" id="detailDesc"></p>
+      <ul class="tags" id="detailTags" role="list"></ul>
+
+      <p class="sheet__url"><a id="detailUrl" href="#" target="_blank" rel="noopener"></a></p>
+
+      <div class="sheet__actions">
+        <a class="btn btn--primary" id="detailOpen" href="#" target="_blank" rel="noopener">🚀 사이트 열기</a>
+        <a class="btn btn--ghost" id="detailRepo" href="#" target="_blank" rel="noopener">GitHub ↗</a>
+        <button type="button" class="btn btn--ghost" id="detailFav" aria-pressed="false">⭐ 즐겨찾기</button>
+      </div>
+
+      <div class="sheet__manage" id="detailManage" hidden>
+        <button type="button" class="btn btn--soft" id="detailEdit">✏️ 정보 수정</button>
+        <button type="button" class="btn btn--danger" id="detailDelete">🗑 이 건물 철거</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 입주 / 수정 폼 ───────────────────────────────────────── -->
+<div class="modal" id="formModal" hidden>
+  <div class="modal__backdrop" data-close></div>
+  <div class="sheet sheet--form" role="dialog" aria-modal="true" aria-labelledby="formTitle" tabindex="-1">
+    <button type="button" class="sheet__close" data-close aria-label="닫기">✕</button>
+    <form id="siteForm" novalidate>
+      <header class="form__head">
+        <p class="form__eyebrow" id="formEyebrow">NEW SITE</p>
+        <h2 class="form__title" id="formTitle">새 건물 입주</h2>
+        <p class="form__lead">주소만 넣어도 바로 마을에 세워져요. 이름과 건물 모양을 골라 주세요.</p>
+      </header>
+
+      <div class="form__grid">
+        <label class="field field--wide">
+          <span class="field__label">사이트 이름 <b>*</b></span>
+          <input type="text" id="fName" name="name" placeholder="예) 나의 독서 기록장" maxlength="40" required />
+        </label>
+
+        <label class="field field--wide">
+          <span class="field__label">주소 (URL) <b>*</b></span>
+          <input type="text" id="fUrl" name="url" placeholder="https://example.vercel.app/" inputmode="url" required />
+          <span class="field__hint" id="urlHint">https:// 는 자동으로 붙여 드려요.</span>
+        </label>
+
+        <label class="field field--wide">
+          <span class="field__label">한 줄 소개</span>
+          <textarea id="fDesc" name="desc" rows="2" maxlength="120" placeholder="이 사이트로 무엇을 하는지 짧게 적어 주세요."></textarea>
+        </label>
+
+        <label class="field field--wide">
+          <span class="field__label">태그 <small>(쉼표로 구분 · 최대 4개)</small></span>
+          <input type="text" id="fTags" name="tags" placeholder="예) 독서, 기록" />
+        </label>
+
+        <fieldset class="field field--wide">
+          <legend class="field__label">입주할 지구</legend>
+          <div class="pickrow" id="districtPick"></div>
+        </fieldset>
+
+        <fieldset class="field field--wide">
+          <legend class="field__label">건물 모양 <small>(12종)</small></legend>
+          <div class="buildingpick" id="buildingPick"></div>
+        </fieldset>
+
+        <p class="form__error" id="formError" role="alert" hidden></p>
+      </div>
+
+      <div class="form__foot">
+        <button type="button" class="linkbtn form__export" id="formExportBtn">📋 JSON 내보내기</button>
+        <button type="button" class="btn btn--quiet" data-close>취소</button>
+        <button type="submit" class="btn btn--primary" id="formSubmit">입주시키기</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ── 안내 토스트 ──────────────────────────────────────────── -->
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="data/sites.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
