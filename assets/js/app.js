@@ -142,11 +142,13 @@
   function dZoom(base) { return Math.max(minScale, base * (isNarrow() ? 0.62 : 1)); }
 
   function clampCam() {
+    /* 가장자리 건물의 말풍선까지 화면 안에 담기도록 지도 밖 여백을 조금 허용한다 (디오라마 느낌) */
+    const padX = 90, padY = 210;
     const visW = vw / state.cam.s, visH = vh / state.cam.s;
-    if (visW >= W.w) state.cam.cx = W.w / 2;
-    else state.cam.cx = clamp(state.cam.cx, visW / 2, W.w - visW / 2);
-    if (visH >= W.h) state.cam.cy = W.h / 2;
-    else state.cam.cy = clamp(state.cam.cy, visH / 2, W.h - visH / 2);
+    if (visW >= W.w + padX * 2) state.cam.cx = W.w / 2;
+    else state.cam.cx = clamp(state.cam.cx, visW / 2 - padX, W.w - visW / 2 + padX);
+    if (visH >= W.h + padY * 2) state.cam.cy = W.h / 2;
+    else state.cam.cy = clamp(state.cam.cy, visH / 2 - padY, W.h - visH / 2 + padY);
   }
 
   let miniViewEl = null;
@@ -1465,8 +1467,7 @@
     const preset = presetOf(site.building);
     const w = widthOf(site);
     const h = (w * (preset.h || 700)) / (preset.w || 760);
-    const cy = Math.max(330, p.y - h * 0.52);
-    return { cx: p.x, cy, s: s || (site.tier === 2 ? 1.0 : 0.9) };
+    return { cx: p.x, cy: p.y - h * 0.52, s: s || (site.tier === 2 ? 1.0 : 0.9) };
   }
   function focusSite(site, dur) {
     const f = siteFocus(site);
