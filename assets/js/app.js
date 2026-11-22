@@ -219,7 +219,8 @@
   stage.addEventListener("pointerdown", (e) => {
     if (e.button !== undefined && e.button !== 0 && e.pointerType === "mouse") return;
     if (e.target.closest(".bld")) { /* 건물 클릭도 드래그 가능 */ }
-    try { stage.setPointerCapture(e.pointerId); } catch (err) { /* 무시 */ }
+    /* 포인터 캡처를 쓰면 클릭이 stage 로 재조준되어 건물 클릭이 먹지 않는다.
+       이동·해제는 window 리스너로 받으므로 캡처가 필요 없다. */
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 1) {
       dragging = true; dragMoved = 0; stage.classList.add("is-dragging");
