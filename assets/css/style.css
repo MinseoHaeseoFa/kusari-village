@@ -106,17 +106,19 @@ a{color:inherit}
   transform-origin:0 0;
   background:#A8C489;
 }
-.terrain,.links{position:absolute;inset:0;width:100%;height:100%;display:block}
+.links{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* 지형 SVG 는 마을(2400×1660) 바깥 들판까지 그린다 — 지도 경계가 보이지 않는다 */
+.terrain{position:absolute;left:-1400px;top:-1100px;width:5200px;height:3860px;display:block}
 .links{pointer-events:none}
 .blds{position:absolute;inset:0}
 
 /* 노을 틴트: 블렌드 모드 없이 반투명 그라디언트만 겹친다 */
 .world__sunset{
-  position:absolute;inset:0;pointer-events:none;opacity:0;
+  position:absolute;inset:-1100px -1400px;pointer-events:none;opacity:0;
   transition:opacity .7s ease;
   background:
-    radial-gradient(72% 52% at 84% 6%, rgba(255,164,96,.20) 0%, rgba(255,120,78,.08) 44%, rgba(0,0,0,0) 70%),
-    linear-gradient(180deg, rgba(255,128,74,.10) 0%, rgba(150,86,136,.24) 20%, rgba(88,48,104,.42) 55%, rgba(14,9,28,.68) 100%);
+    radial-gradient(864px 432px at 3416px 1200px, rgba(255,164,96,.20) 0%, rgba(255,120,78,.08) 44%, rgba(0,0,0,0) 70%),
+    linear-gradient(180deg, rgba(255,128,74,.04) 0%, rgba(255,128,74,.10) 28.5%, rgba(150,86,136,.24) 37.1%, rgba(88,48,104,.42) 52.1%, rgba(14,9,28,.68) 71.5%, rgba(14,9,28,.76) 100%);
 }
 html[data-theme="sunset"] .world__sunset{opacity:1}
 .stage__vignette{
@@ -249,20 +251,13 @@ html[data-theme="sunset"] .stage__vignette{
 .avatar{
   position:absolute;left:0;top:0;width:110px;height:144px;
   margin:-144px 0 0 -55px;
-  opacity:0;pointer-events:none;
+  opacity:1;pointer-events:none;
   transition:opacity .3s ease;
 }
-body[data-mode="walk"] .avatar{opacity:1}
 .avatar__inner{width:100%;height:100%;transform-origin:50% 100%}
 .avatar svg{width:100%;height:100%;display:block}
 .avatar.is-step .avatar__inner{animation:av-bob .34s ease-in-out infinite}
 .avatar--flip .avatar__inner{transform:scaleX(-1)}
-.avatar__tag{
-  position:absolute;left:50%;bottom:-6px;transform:translate(-50%,10px);
-  transform-origin:top center;
-  font-size:19px;font-weight:800;color:#31465F;background:#EAF3FF;
-  border:2px solid #9CBFDD;border-radius:999px;padding:2px 12px;white-space:nowrap;
-}
 @keyframes av-bob{
   0%,100%{transform:translateY(0) rotate(-1.5deg)}
   50%{transform:translateY(-3px) rotate(1.5deg)}
@@ -929,13 +924,13 @@ body[data-mode="walk"] .stage__vignette{background:radial-gradient(115% 95% at 5
 }
 html[data-theme="sunset"] .sun{opacity:1}
 .world__glow{
-  position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .8s ease;
+  position:absolute;inset:-1100px -1400px;pointer-events:none;opacity:0;transition:opacity .8s ease;
   background:
-    radial-gradient(58% 46% at 86% 2%, rgba(255,198,120,.30) 0%, rgba(255,146,96,.14) 38%, rgba(0,0,0,0) 68%);
+    radial-gradient(696px 382px at 3464px 1133px, rgba(255,198,120,.30) 0%, rgba(255,146,96,.14) 38%, rgba(0,0,0,0) 68%);
 }
 html[data-theme="sunset"] .world__glow{opacity:1}
 .fireflies{
-  position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.2s ease;
+  position:absolute;inset:-1100px -1400px;pointer-events:none;opacity:0;transition:opacity 1.2s ease;
   background-image:
     radial-gradient(circle, rgba(255,244,186,.9) 0 3px, transparent 3.8px),
     radial-gradient(circle, rgba(255,230,160,.75) 0 2.2px, transparent 3.2px);
@@ -1061,11 +1056,11 @@ html[data-theme="night"] .world__glow{opacity:0}
 
 /* 밤 톤 오버레이 — 지도 위에 반투명 그라디언트만 겹친다 */
 .world__night{
-  position:absolute;inset:0;pointer-events:none;opacity:0;
+  position:absolute;inset:-1100px -1400px;pointer-events:none;opacity:0;
   transition:opacity 1s ease;
   background:
-    radial-gradient(58% 40% at 84% 2%, rgba(178,204,255,.16) 0%, rgba(112,144,206,.07) 44%, rgba(0,0,0,0) 72%),
-    linear-gradient(180deg, rgba(20,30,62,.32) 0%, rgba(20,30,62,.42) 38%, rgba(11,17,38,.54) 100%);
+    radial-gradient(696px 332px at 3416px 1133px, rgba(178,204,255,.16) 0%, rgba(112,144,206,.07) 44%, rgba(0,0,0,0) 72%),
+    linear-gradient(180deg, rgba(20,30,62,.22) 0%, rgba(20,30,62,.32) 28.5%, rgba(20,30,62,.42) 44.8%, rgba(11,17,38,.54) 71.5%, rgba(11,17,38,.60) 100%);
 }
 html[data-theme="night"] .world__night{opacity:1}
 html[data-theme="night"] .stage__vignette{
@@ -1158,27 +1153,28 @@ html[data-theme="sunset"] .pill--t1{border-color:rgba(242,164,115,.42)}
 html[data-theme="sunset"] .pill--t2{border-color:rgba(169,192,210,.42)}
 
 /* ── 날씨 톤 오버레이 ───────────────────────────────────── */
-.world__weather{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .9s ease}
+/* 날씨 톤도 마을 바깥 들판까지 같은 세기로 덮는다 (지도 영역의 톤은 v4 그대로) */
+.world__weather{position:absolute;inset:-1100px -1400px;pointer-events:none;opacity:0;transition:opacity .9s ease}
 html[data-weather="clear"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(255,248,216,.10) 0%, rgba(255,255,255,0) 58%);
+  opacity:1;background:linear-gradient(180deg, rgba(255,248,216,.04) 0%, rgba(255,248,216,.10) 28.5%, rgba(255,255,255,0) 53.4%);
 }
 html[data-weather="partly"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(168,186,208,.12) 0%, rgba(120,140,165,.06) 60%, rgba(120,140,165,0) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(168,186,208,.05) 0%, rgba(168,186,208,.12) 28.5%, rgba(120,140,165,.06) 40.4%, rgba(120,140,165,.06) 54.3%, rgba(120,140,165,0) 71.5%);
 }
 html[data-weather="cloud"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(118,132,152,.24) 0%, rgba(96,110,130,.18) 55%, rgba(84,98,118,.12) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(118,132,152,.10) 0%, rgba(118,132,152,.24) 28.5%, rgba(96,110,130,.18) 52.1%, rgba(84,98,118,.12) 71.5%);
 }
 html[data-weather="fog"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(222,228,234,.34) 0%, rgba(204,214,222,.24) 55%, rgba(196,206,214,.16) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(222,228,234,.14) 0%, rgba(222,228,234,.34) 28.5%, rgba(204,214,222,.24) 52.1%, rgba(196,206,214,.16) 71.5%);
 }
 html[data-weather="rain"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(70,86,112,.30) 0%, rgba(52,66,88,.26) 55%, rgba(44,56,76,.20) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(70,86,112,.13) 0%, rgba(70,86,112,.30) 28.5%, rgba(52,66,88,.26) 52.1%, rgba(44,56,76,.20) 71.5%);
 }
 html[data-weather="storm"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(48,58,84,.42) 0%, rgba(38,46,68,.34) 60%, rgba(30,38,58,.26) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(48,58,84,.18) 0%, rgba(48,58,84,.42) 28.5%, rgba(38,46,68,.34) 54.3%, rgba(30,38,58,.26) 71.5%);
 }
 html[data-weather="snow"] .world__weather{
-  opacity:1;background:linear-gradient(180deg, rgba(240,246,253,.36) 0%, rgba(216,230,246,.28) 55%, rgba(202,220,240,.20) 100%);
+  opacity:1;background:linear-gradient(180deg, rgba(240,246,253,.15) 0%, rgba(240,246,253,.36) 28.5%, rgba(216,230,246,.28) 52.1%, rgba(202,220,240,.20) 71.5%);
 }
 
 /* 날씨 효과 캔버스 — 단 하나, pointer-events:none */
@@ -1230,3 +1226,22 @@ html[data-weather="snow"] .world__weather{
   .wxchip__txt{font-size:10.5px}
   .wxchip__temp{font-size:10.5px}
 }
+
+/* ═══════════════════════════════════════════════════════════
+   29. v5 — PC 조망(마을 전체 보기) · 지구 바 우측 정렬 · 도크 최하단
+   ═══════════════════════════════════════════════════════════ */
+
+/* PC: 지구 바로가기 바를 우측 끝으로 — 맨 윗줄 `＋ 새 건물 입주` 오른쪽 끝선과 맞춘다 */
+@media (min-width:761px){
+  .hud{
+    left:auto;right:16px;transform:none;
+    max-width:min(calc(100vw - 32px),880px);
+  }
+  /* PC: 마을 조작 도크를 화면 왼쪽·아래 모서리에 바짝 붙인다 */
+  .dock{left:8px;bottom:8px;}
+}
+
+/* 지도가 한눈에 들어오는 배율에서는 명패를 조금 키워 이름이 읽히게 */
+.world[data-zoom="far"] .bld__name{font-size:24px}
+.world[data-zoom="far"] .bld[data-hub="true"] .bld__name{font-size:26px}
+.world[data-zoom="far"] .bld[data-tier="2"] .bld__name{font-size:21px}

@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v4 — app.js
+   🏡 쿠사리 빌리지 v5 — app.js
    2.5D 마을 지도 · 본부/별관 계층 · 카메라/투어/걷기
    시간대(낮·노을·밤) 자동 전환 + 현지 실시간 날씨 풍경
    기본 명단(data/sites.js) + 내가 입주시킨 건물(localStorage)
@@ -76,7 +76,7 @@
     wxMode: "auto",
     wx: { code: null, temp: null, key: "clear", loaded: false, place: "" },
     cam: { cx: W.w / 2, cy: W.h / 2, s: 0.55 },
-    walk: { x: 1180, y: 1500, vx: 0, vy: 0, target: null, face: 1, moving: false, last: 0 },
+    walk: { x: 1180, y: 1592, vx: 0, vy: 0, target: null, face: 1, moving: false, last: 0 },
     nearId: null,
     tour: { on: false, i: 0, timer: null },
     hoverDistrict: null
@@ -155,6 +155,12 @@
   function fitScale() { return Math.min(vw / W.w, vh / W.h); }
   /* 지도가 화면을 꽉 채우는 최소 배율(cover) — 지도 바깥 배경이 드러나지 않는다 */
   function coverScale() { return Math.max(vw / W.w, vh / W.h) * 1.004; }
+  /* 화면 종류별 최소 배율
+     · 모바일(좁은 화면): cover — 지도가 화면을 가득 채운다
+     · PC(넓은 화면): fit — 마을 전체가 위아래 잘리지 않고 한눈에 들어온다.
+       지도 밖으로 드러나는 자리는 마을 들판(잔디·강·숲)이 이어져 경계가 보이지 않는다. */
+  function fitViewScale() { return fitScale() * 0.93; }
+  function minScaleFor() { return isNarrow() ? coverScale() : fitViewScale(); }
   function dZoom(base) { return Math.max(minScale, base * (isNarrow() ? 0.62 : 1)); }
 
   function clampCam() {
@@ -205,28 +211,26 @@
 
   function resize() {
     vw = window.innerWidth; vh = window.innerHeight;
-    minScale = coverScale();
+    minScale = minScaleFor();
     if (state.cam.s < minScale) state.cam.s = minScale;
     applyCam();
     fxResize();
   }
   window.addEventListener("resize", () => { resize(); });
 
-  /* 초기 카메라 */
+  /* 초기 카메라 — PC 는 마을 전체가 한눈에 들어오는 fit 배율에서 시작한다 */
   (function initCam() {
-    minScale = coverScale();
+    minScale = minScaleFor();
     if (isNarrow()) {
       state.cam.s = minScale * 1.16;
       state.cam.cx = 1010; state.cam.cy = 700;
+      applyCam();
+      setTimeout(() => panTo(1010, 780, minScale, 1100), 140);
     } else {
-      state.cam.s = Math.max(minScale, fitScale() * 1.15);
-      state.cam.cx = 1180; state.cam.cy = 900;
+      state.cam.s = minScale;
+      state.cam.cx = W.w / 2; state.cam.cy = W.h / 2;
+      applyCam();
     }
-    applyCam();
-    setTimeout(() => {
-      if (isNarrow()) panTo(1010, 780, minScale, 1100);
-      else panTo(W.w / 2, 830, minScale, 1200);
-    }, 140);
   })();
 
   /* ── 드래그 · 휠 · 핀치 ───────────────────────────────── */
@@ -319,9 +323,13 @@
   }, { passive: false });
 
   /* ── 지형(터레인) ─────────────────────────────────────── */
-  const RIVER = "M -80 1024 C 260 994 520 1064 860 1056 C 1040 1052 1140 1028 1240 1042 C 1420 1066 1600 1084 1800 1058 C 2000 1032 2200 1012 2480 1036";
+  /* 마을 바깥 들판(apron) — 넓은 PC 화면에서 마을 전체가 보여도 지도 경계나
+     이질적인 단색이 드러나지 않도록 같은 잔디·강·숲을 사방으로 이어 붙인다.
+     좌표계는 마을 (0,0)-(2400,1660) 그대로이고, 그 둘레로만 땅을 더 둔다. */
+  const PAD = { l: 1400, t: 1100, r: 1400, b: 1100 };
+  const RIVER = "M -1500 1136 C -1100 1072 -520 1024 -80 1024 C 260 994 520 1064 860 1056 C 1040 1052 1140 1028 1240 1042 C 1420 1066 1600 1084 1800 1058 C 2000 1032 2200 1012 2480 1036 C 2900 1054 3300 1014 3800 1090";
   const ROADS = [
-    "M 1180 1640 L 1180 1046",
+    "M 1180 2620 L 1180 1046",
     "M 1180 1040 C 1180 884 1180 776 1104 664",
     "M 1180 1116 C 1062 1180 942 1232 842 1272 C 762 1304 664 1316 592 1324",
     "M 1180 1476 C 1300 1458 1424 1398 1524 1368 C 1652 1330 1780 1324 1904 1314",
@@ -358,6 +366,18 @@
   const REEDS = [[300, 1002, 0.9], [332, 1012, 0.8], [1490, 1074, 0.9], [1524, 1086, 0.8], [2140, 1024, 0.9], [710, 1064, 0.85]];
   const BOATS = [[522, 1042, 1.0], [1668, 1054, 0.9]];
 
+  /* 들판 숲 — 마을(0,0)-(2400,1660) 바깥 둘레에만 놓는다 */
+  const APRON_TREES = [
+    [-980, 520, 1.05], [-1240, 1000, 1.15], [-780, 1290, 1.0], [-320, 1530, 0.95], [-1060, 170, 1.0],
+    [-420, -300, 1.0], [140, -430, 1.05], [860, -520, 1.1], [1620, -470, 1.05], [2280, -390, 1.0],
+    [2820, 200, 1.1], [2700, 780, 1.0], [2960, 1260, 1.15], [2540, 1570, 1.0], [1200, 2020, 1.1],
+    [320, 1910, 1.0], [2020, 1900, 1.05], [680, 1830, 0.95]
+  ];
+  const APRON_BUSHES = [
+    [-620, 300, 1.0], [-880, 830, 1.1], [-360, 1170, 0.95], [2680, 430, 1.05], [2860, 1010, 1.0],
+    [2540, 1830, 1.0], [-160, -240, 1.0], [780, -370, 0.95], [1980, -310, 1.0], [1400, 1890, 1.0]
+  ];
+
   function signSvg(x, y, label, bg, stroke, fg) {
     return `<g>
       <ellipse cx="${x}" cy="${y + 64}" rx="17" ry="5" fill="#3F5B45" opacity=".18"/>
@@ -391,7 +411,7 @@
 
     return `
     <defs>
-      <linearGradient id="gGrass" x1="0" y1="0" x2="0.35" y2="1">
+      <linearGradient id="gGrass" x1="0" y1="0" x2="840" y2="1660" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="#AFCE86"/>
         <stop offset=".46" stop-color="#98BC70"/>
         <stop offset="1" stop-color="#7FA55C"/>
@@ -450,10 +470,16 @@
       </radialGradient>
     </defs>
 
-    <!-- 잔디 바탕 -->
-    <rect width="${W.w}" height="${W.h}" fill="#7FA55C"/>
-    <rect width="${W.w}" height="${W.h}" fill="url(#gGrass)"/>
-    <rect width="${W.w}" height="${W.h}" fill="url(#pGrass)"/>
+    <!-- 마을 + 바깥 들판 잔디 (한 장으로 이어진다) -->
+    <rect x="${-PAD.l}" y="${-PAD.t}" width="${W.w + PAD.l + PAD.r}" height="${W.h + PAD.t + PAD.b}" fill="#7FA55C"/>
+    <rect x="${-PAD.l}" y="${-PAD.t}" width="${W.w + PAD.l + PAD.r}" height="${W.h + PAD.t + PAD.b}" fill="url(#gGrass)"/>
+    <rect x="${-PAD.l}" y="${-PAD.t}" width="${W.w + PAD.l + PAD.r}" height="${W.h + PAD.t + PAD.b}" fill="url(#pGrass)"/>
+
+    <!-- 들판 너머 완만한 언덕 -->
+    <ellipse cx="1200" cy="-660" rx="2200" ry="560" fill="url(#gHill)"/>
+    <ellipse cx="1200" cy="2480" rx="2100" ry="560" fill="url(#gMeadow)"/>
+    <ellipse cx="-980" cy="760" rx="980" ry="760" fill="url(#gHill)"/>
+    <ellipse cx="3380" cy="820" rx="980" ry="800" fill="url(#gHill)"/>
 
     <!-- 완만한 언덕 -->
     <ellipse cx="360" cy="150" rx="620" ry="330" fill="url(#gHill)"/>
@@ -555,8 +581,8 @@
     <!-- 지구 표지판 -->
     ${signSvg(1074, 952, "🧭 여행 지구", "#FBEFD8", "#C9AC80", "#8A6034")}
     ${signSvg(1600, 884, "📸 창작 골목", "#FBE9F0", "#D3A6BC", "#9C5C79")}
-    ${signSvg(742, 1148, "🏛️ 업무 광장", "#E9F0E7", "#A3B9A5", "#4E6A58")}
-    ${signSvg(1436, 1492, "🌱 새싹 개발지", "#F1F5DE", "#B4C68B", "#6A7A38")}
+    ${signSvg(580, 1165, "🏛️ 업무 광장", "#E9F0E7", "#A3B9A5", "#4E6A58")}
+    ${signSvg(1436, 1492, "💡 영감 놀이터", "#F1F5DE", "#B4C68B", "#6A7A38")}
 
     <!-- 지구 표지판 글씨 크기 보정용 여백 -->
     <!-- 장식 -->
@@ -568,6 +594,10 @@
     ${ROCKS.map(([x, y, s]) => svgUse("rock", x, y, s)).join("")}
     ${REEDS.map(([x, y, s]) => svgUse("reed", x, y, s)).join("")}
     ${BOATS.map(([x, y, s]) => `<g transform="translate(${x} ${y}) scale(${s})"><use href="#s-boat" x="-40" y="-30" width="80" height="44"/></g>`).join("")}
+
+    <!-- 들판 숲 (마을 바깥) -->
+    ${APRON_TREES.map(([x, y, s]) => svgUse(x % 2 === 0 ? "tree--warm" : "tree", x, y, s)).join("")}
+    ${APRON_BUSHES.map(([x, y, s]) => svgUse("bush", x, y, s)).join("")}
 
     <!-- 물가 잔물결 -->
     <g opacity=".5">
@@ -725,7 +755,7 @@
     if (!nav) return;
     nav.innerHTML = DISTRICTS.map((d) => {
       const n = allSites().filter((s) => s.district === d.id).length;
-      const short = esc(d.name.replace(" 지구", "").replace(" 골목", "").replace(" 광장", "").replace(" 개발지", ""));
+      const short = esc(d.name.replace(" 지구", "").replace(" 골목", "").replace(" 광장", "").replace(" 놀이터", ""));
       return `<button type="button" class="hud__chip" data-district="${esc(d.id)}">
         <span aria-hidden="true">${d.emoji}</span><span class="hud__long">${esc(d.name)}</span><span class="hud__short">${short}</span> <b>${n}</b></button>`;
     }).join("") + `<span class="hud__depth" title="본부 아래에 별관이 매달립니다"><i>별</i> 별관은 본부에 연결</span>`;
@@ -1107,6 +1137,7 @@
     { id: "travel", label: "여행", icon: "🧭" },
     { id: "creative", label: "창작", icon: "📸" },
     { id: "work", label: "업무", icon: "🏛️" },
+    { id: "sprout", label: "영감", icon: "💡" },
     { id: "fav", label: "즐겨찾기", icon: "⭐" }
   ];
   const GH_ICON = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>';
@@ -1859,20 +1890,23 @@
   /* ── 걷기 모드 ────────────────────────────────────────── */
   const avatar = $("#avatar");
   const keys = new Set();
+  /* 기본 스폰 — 대문 아치 바로 앞(문 안쪽 길 위) */
+  const WALK_SPAWN = { x: 1180, y: 1592 };
   function enterWalk() {
     stopTour();
     if (state.view !== "map") setView("map", true);
     state.mode = "walk";
     document.body.dataset.mode = "walk";
     stage.classList.add("is-walk");
-    state.walk.x = 1180; state.walk.y = 1300;
+    /* 대문(쿠사리 빌리지 아치) 바로 앞 길 위에서 걷기를 시작한다 */
+    state.walk.x = WALK_SPAWN.x; state.walk.y = WALK_SPAWN.y;
     state.walk.target = null;
     state.walk.vx = 0; state.walk.vy = 0;
     $("#walkBtn").setAttribute("aria-pressed", "true");
     $("#walkHint").hidden = false;
     $("#joy").hidden = false;
     $("#coach").hidden = true;
-    panTo(1180, 1240, dZoom(1.08), 800);
+    panTo(WALK_SPAWN.x, WALK_SPAWN.y - 90, dZoom(1.08), 800);
     
     hideCoach();
     updateAvatar();
@@ -2073,6 +2107,7 @@
 
   $("#terrain").innerHTML = terrainSVG();
   renderAll();
+  updateAvatar();
   setView(read(KEY.view, "map") === "deck" ? "deck" : "map", false);
   if (location.hash === "#work") setView("deck", false);
 

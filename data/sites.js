@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v4 · 기본 입주 명단 (KUSARI VILLAGE · sites)
+   🏡 쿠사리 빌리지 v5 · 기본 입주 명단 (KUSARI VILLAGE · sites)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1660) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -16,8 +16,8 @@
    · role     : 명패에 들어가는 한 줄 역할 (예: "여행 지구 본부 · 하위 4")
    ============================================================ */
 window.KUSARI_TOWN = {
-  version: 4,
-  updated: "2026-11-23",
+  version: 5,
+  updated: "2026-11-24",
   world: { w: 2400, h: 1660 },
 
   /* ── 지구 ─────────────────────────────────────── */
@@ -31,9 +31,9 @@ window.KUSARI_TOWN = {
       accent: "#C1663B",
       accent2: "#E9B98C",
       tint: "#FDEFDF",
-      zone: { cx: 1010, cy: 520, rx: 640, ry: 470 },
+      zone: { cx: 1010, cy: 520, rx: 680, ry: 505 },
       look: { cx: 1010, cy: 500, s: 0.82 },
-      slots: [[1330, 830], [880, 700], [1290, 980], [700, 300], [1340, 300]]
+      slots: [[520, 620], [380, 880], [1520, 380], [1490, 910]]
     },
     {
       id: "creative",
@@ -44,9 +44,9 @@ window.KUSARI_TOWN = {
       accent: "#B06A8A",
       accent2: "#E7B4C9",
       tint: "#FBEAF1",
-      zone: { cx: 1850, cy: 790, rx: 360, ry: 340 },
+      zone: { cx: 1850, cy: 800, rx: 470, ry: 430 },
       look: { cx: 1855, cy: 780, s: 0.9 },
-      slots: [[2100, 600], [2160, 1000], [1600, 980], [1880, 540]]
+      slots: [[1750, 370], [2180, 560]]
     },
     {
       id: "work",
@@ -57,22 +57,22 @@ window.KUSARI_TOWN = {
       accent: "#5E7A6A",
       accent2: "#A9C0AA",
       tint: "#EAF0E7",
-      zone: { cx: 585, cy: 1330, rx: 385, ry: 235 },
+      zone: { cx: 590, cy: 1330, rx: 470, ry: 280 },
       look: { cx: 585, cy: 1290, s: 0.92 },
-      slots: [[300, 1120], [980, 1240], [560, 1560], [960, 1450]]
+      slots: [[250, 1560], [560, 1580], [900, 1580]]
     },
     {
       id: "sprout",
-      name: "새싹 개발지",
-      en: "Sprouting Plots",
-      emoji: "🌱",
-      desc: "새로 입주한 사이트가 한 칸씩 자리를 잡는 땅",
+      name: "영감 놀이터",
+      en: "Idea Playground",
+      emoji: "💡",
+      desc: "새 아이디어와 새 사이트가 놀이처럼 자리를 잡는 땅",
       accent: "#7E8F45",
       accent2: "#C4D18E",
       tint: "#F2F5E2",
-      zone: { cx: 1740, cy: 1345, rx: 330, ry: 200 },
+      zone: { cx: 1740, cy: 1345, rx: 420, ry: 265 },
       look: { cx: 1740, cy: 1300, s: 0.92 },
-      slots: [[1600, 1352], [1888, 1332], [1518, 1478], [2030, 1450], [1770, 1500]]
+      slots: [[1400, 1300], [1960, 1330], [2010, 1560]]
     }
   ],
 
@@ -103,7 +103,7 @@ window.KUSARI_TOWN = {
 
     /* 별관 · 나의 여행 지도 산하 4곳 */
     { id: "korea-travel-map", name: "대한민국 Trail Log", url: "https://korea-travel-map-ebon.vercel.app/", repo: "korea-travel-map",
-      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [792, 302], w: 170,
+      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [752, 292], w: 170,
       role: "본부 별관 · 대한민국 기록",
       desc: "전국 167개 시·군의 명소를 따라가며 남기는 국내 여행 기록. 나의 여행 지도에서 이어집니다.",
       tags: ["국내 여행", "167개 시·군", "Trail Log"] },
@@ -115,7 +115,7 @@ window.KUSARI_TOWN = {
       tags: ["세계 여행", "국가별 기록", "Trail Log"] },
 
     { id: "mountain-travel-map", name: "100대 명산 Trail Log", url: "https://mountain-travel-map.vercel.app/", repo: "mountain-travel-map",
-      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [1228, 304], w: 170,
+      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [1300, 285], w: 170,
       role: "본부 별관 · 명산 기록",
       desc: "100대 명산 완등을 향한 산행 기록과 산행지 안내. 나의 여행 지도에서 이어집니다.",
       tags: ["100대 명산", "등산 기록", "Trail Log"] },
@@ -141,21 +141,21 @@ window.KUSARI_TOWN = {
 
     /* 본부 · 업무 광장 독립 사이트 2곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
-      district: "work", building: "library", tier: 1, parent: null, pos: [400, 1290], w: 262,
+      district: "work", building: "library", tier: 1, parent: null, pos: [330, 1300], w: 262,
       role: "업무 광장 · 독립 사이트",
       desc: "공공·출연연 감사 그레이존 판단 사례 710건을 4단계로 정리한 DB.",
       tags: ["내부감사", "사례 710건", "판단 기준"] },
 
     { id: "kitech-audit", name: "KITECH-Audit 포털", url: "https://kitech-audit.vercel.app/", repo: "KITECH-Audit",
-      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [780, 1360], w: 262,
+      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [830, 1300], w: 262,
       role: "업무 광장 · 독립 사이트",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] },
 
-    /* 본부 · 새싹 개발지 첫 입주민 */
+    /* 본부 · 영감 놀이터 첫 입주민 */
     { id: "ai-team-room", name: "쿠사리 AI 팀 회의실", url: "https://ai-team-room-457.pages.dev/", repo: "ai-team-room",
       district: "sprout", building: "cafe", tier: 1, parent: null, pos: [1680, 1340], w: 258,
-      role: "새싹 개발지 · AI 팀 회의실",
+      role: "영감 놀이터 · AI 팀 회의실",
       desc: "쿠사리님과 김비서·뮤즈·제미나이·클로드가 방별로 모여 협업하는 팀 회의실.",
       tags: ["AI 회의실", "팀 협업", "실시간"] }
   ]

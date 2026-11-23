@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>쿠사리 빌리지 v4 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
-<meta name="description" content="쿠사리님이 만든 웹앱 10곳이 하나의 2.5D 마을에 모여 삽니다. 초록 마을이 화면을 가득 채우고, 건물을 누르면 그 사이트로 바로 이동합니다." />
+<title>쿠사리 빌리지 v5 · Kusari Village | 내 사이트들이 모여 사는 2.5D 마을</title>
+<meta name="description" content="쿠사리님이 만든 웹앱 10곳이 하나의 2.5D 마을에 모여 삽니다. 여행 지구·창작 골목·업무 광장·영감 놀이터가 한눈에 펼쳐지고, 건물을 누르면 그 사이트로 바로 이동합니다." />
 <meta name="theme-color" content="#8FB069" />
 <meta property="og:type" content="website" />
-<meta property="og:title" content="쿠사리 빌리지 v4 · Kusari Village" />
+<meta property="og:title" content="쿠사리 빌리지 v5 · Kusari Village" />
 <meta property="og:description" content="내 사이트들이 모여 사는 2.5D 마을. 본부와 별관의 계층, 낮·노을·밤 그리고 지금 이곳의 날씨까지 지도 위에서 한눈에." />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='88'%3E%F0%9F%8F%A1%3C/text%3E%3C/svg%3E" />
 <link rel="stylesheet" href="assets/css/style.css" />
@@ -102,31 +102,72 @@
      ══════════════════════════════════════════════════════════════ -->
 <div class="stage" id="stage" aria-label="쿠사리 빌리지 마을 지도">
   <div class="world" id="world">
-    <svg class="terrain" id="terrain" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
+    <svg class="terrain" id="terrain" viewBox="-1400 -1100 5200 3860" aria-hidden="true" focusable="false"></svg>
     <div class="world__stars" aria-hidden="true"></div>
     <div class="sun" aria-hidden="true"></div>
     <svg class="links" id="links" viewBox="0 0 2400 1660" aria-hidden="true" focusable="false"></svg>
     <div class="blds" id="blds"></div>
     <div class="avatar" id="avatar" aria-hidden="true">
       <div class="avatar__inner">
-        <svg viewBox="0 0 64 84" width="64" height="84">
-          <ellipse cx="32" cy="79" rx="17" ry="4.6" fill="#33422A" opacity=".28"/>
-          <rect class="av-leg av-leg--l" x="23" y="58" width="7" height="18" rx="3.4" fill="#3A4A63"/>
-          <rect class="av-leg av-leg--r" x="35" y="58" width="7" height="18" rx="3.4" fill="#3A4A63"/>
-          <path d="M18 40h28v18a4 4 0 0 1-4 4H22a4 4 0 0 1-4-4z" fill="#2F4664"/>
-          <path d="M26 40h12v6H26z" fill="#F5E7CE"/>
-          <circle cx="32" cy="30" r="15" fill="#F7DCC2"/>
-          <path d="M17 28c0-9 7-14 15-14s15 5 15 14c-4-3-11-4-15-4s-11 1-15 4z" fill="#3B2C22"/>
-          <path d="M15 22c2-9 9-13 17-13s15 4 17 13c-3-1-6-2-8-5-4 4-14 5-18 1-2 3-5 4-8 4z" fill="#28405C"/>
-          <circle cx="26" cy="31" r="1.9" fill="#33261E"/>
-          <circle cx="38" cy="31" r="1.9" fill="#33261E"/>
-          <circle cx="22" cy="35" r="2.6" fill="#F0B3A4" opacity=".8"/>
-          <circle cx="42" cy="35" r="2.6" fill="#F0B3A4" opacity=".8"/>
-          <path d="M29 36c1.6 1.6 4.4 1.6 6 0" stroke="#B4674F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M46 44h8v14a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4z" fill="#C97E52"/>
+        <!-- 2등장(치비) 비서 — 큰 눈·볼터치·수첩·리본, 걷기 다리 애니메이션(.av-leg) 유지 -->
+        <svg viewBox="0 0 64 84" width="64" height="84" aria-hidden="true" focusable="false">
+          <defs><clipPath id="avHeadClip"><circle cx="32" cy="27.4" r="20"/></clipPath></defs>
+          <ellipse cx="32" cy="79.4" rx="14.5" ry="3.6" fill="#33422A" opacity=".26"/>
+          <g class="av-leg av-leg--l">
+            <rect x="25.4" y="63" width="6.6" height="12.6" rx="3.3" fill="#F8DCC1"/>
+            <path d="M24.2 72.6h9v2.6a3.4 3.4 0 0 1-3.4 3.4h-2.2a3.4 3.4 0 0 1-3.4-3.4z" fill="#2E4462"/>
+          </g>
+          <g class="av-leg av-leg--r">
+            <rect x="32" y="63" width="6.6" height="12.6" rx="3.3" fill="#F8DCC1"/>
+            <path d="M30.8 72.6h9v2.6a3.4 3.4 0 0 1-3.4 3.4h-2.2a3.4 3.4 0 0 1-3.4-3.4z" fill="#2E4462"/>
+          </g>
+          <path d="M32 44.6c6.1 0 10.4 3.3 11.4 8.9l1.7 10.2c.4 2.2-1.3 4.1-3.5 4.1H22.4c-2.2 0-3.9-1.9-3.5-4.1l1.7-10.2c1-5.6 5.3-8.9 11.4-8.9z" fill="#31496A"/>
+          <path d="M27.2 45.2c1 2.3 2.8 3.8 4.8 3.8s3.8-1.5 4.8-3.8c-1.6-.5-3.2-.8-4.8-.8s-3.2.3-4.8.8z" fill="#FFFDF8"/>
+          <path d="M32 54.3l-3.4-2.3v4.6z" fill="#E4725F"/>
+          <path d="M32 54.3l3.4-2.3v4.6z" fill="#E4725F"/>
+          <circle cx="32" cy="54.4" r="1.55" fill="#C85347"/>
+          <rect x="17.4" y="47.2" width="6.2" height="14" rx="3.1" fill="#2B4160" transform="rotate(8 20.5 54)"/>
+          <rect x="40.4" y="47.2" width="6.2" height="14" rx="3.1" fill="#2B4160" transform="rotate(-8 43.5 54)"/>
+          <g transform="rotate(-13 22.4 58)">
+            <rect x="17.4" y="52.2" width="9.4" height="11.2" rx="1.7" fill="#FFF7E6" stroke="#C6A275" stroke-width="1.2"/>
+            <rect x="17.4" y="52.2" width="3.1" height="11.2" rx="1.5" fill="#E2795F"/>
+            <path d="M22.6 56h2.6M22.6 59h2.6" stroke="#C6A275" stroke-width="1" stroke-linecap="round"/>
+          </g>
+          <circle cx="20.4" cy="62.4" r="2.9" fill="#F8DCC1"/>
+          <circle cx="43.6" cy="62.4" r="2.9" fill="#F8DCC1"/>
+          <circle cx="32" cy="27.4" r="21" fill="#3D2B21"/>
+          <circle cx="13" cy="30" r="3.4" fill="#F7D6B8"/>
+          <circle cx="51" cy="30" r="3.4" fill="#F7D6B8"/>
+          <circle cx="32" cy="27.4" r="20" fill="#FCE2C8"/>
+          <path d="M21.4 24.6c1.5-1.1 3.5-1.1 5 0" stroke="#6B4A34" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".5"/>
+          <path d="M37.6 24.6c1.5-1.1 3.5-1.1 5 0" stroke="#6B4A34" stroke-width="1.1" fill="none" stroke-linecap="round" opacity=".5"/>
+          <ellipse cx="25.2" cy="31" rx="4.8" ry="5.6" fill="#FFFCF6"/>
+          <ellipse cx="38.8" cy="31" rx="4.8" ry="5.6" fill="#FFFCF6"/>
+          <ellipse cx="25.4" cy="31.7" rx="3.7" ry="4.5" fill="#3A2E46"/>
+          <ellipse cx="38.6" cy="31.7" rx="3.7" ry="4.5" fill="#3A2E46"/>
+          <circle cx="24" cy="29.2" r="1.7" fill="#FFFFFF"/>
+          <circle cx="37.2" cy="29.2" r="1.7" fill="#FFFFFF"/>
+          <circle cx="27.2" cy="34.2" r="1" fill="#FFFFFF" opacity=".9"/>
+          <circle cx="40.4" cy="34.2" r="1" fill="#FFFFFF" opacity=".9"/>
+          <path d="M20.4 25.2c1.4-1 2.8-1.5 4.2-1.6" stroke="#3A2E46" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <path d="M43.6 25.2c-1.4-1-2.8-1.5-4.2-1.6" stroke="#3A2E46" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <ellipse cx="20.6" cy="35.6" rx="3.6" ry="2.4" fill="#F5A79C" opacity=".6"/>
+          <ellipse cx="43.4" cy="35.6" rx="3.6" ry="2.4" fill="#F5A79C" opacity=".6"/>
+          <path d="M29.6 38.6c1.5 1.9 3.3 1.9 4.8 0" stroke="#B4674F" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <g clip-path="url(#avHeadClip)">
+            <path d="M11.4 29c0-12.2 9.2-21.4 20.6-21.4S52.6 16.8 52.6 29c-2.2-5.6-4.7-8.9-7.4-10.9-2.3 3.6-6.8 5.7-13.2 5.7s-10.9-2.1-13.2-5.7C16.1 20.1 13.6 23.4 11.4 29z" fill="#3D2B21"/>
+            <path d="M19.6 15.2c3.2-2.4 7.4-3.6 11.6-3.6" stroke="#5C4433" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".5"/>
+          </g>
+          <path d="M12.4 26.6c-1.9 4.6-1.6 9.6.2 13.8.9-4.9 2.3-8.8 4.1-11.6z" fill="#3D2B21"/>
+          <path d="M51.6 26.6c1.9 4.6 1.6 9.6-.2 13.8-.9-4.9-2.3-8.8-4.1-11.6z" fill="#3D2B21"/>
+          <path d="M33.8 8.4c1.1-3.3 3.4-5.2 6-5.7-1.6 1.7-2.5 3.4-2.7 5.2z" fill="#3D2B21"/>
+          <g transform="translate(17.8 15.6) rotate(-20)">
+            <path d="M0 0c-3.4-3-7.2-3.2-7.2-.1 0 2.9 3.6 3.2 7.2.1z" fill="#E4725F"/>
+            <path d="M0 0c3.4-3 7.2-3.2 7.2-.1 0 2.9-3.6 3.2-7.2.1z" fill="#E4725F"/>
+            <circle r="1.8" fill="#C85347"/>
+          </g>
         </svg>
       </div>
-      <span class="avatar__tag">김비서</span>
     </div>
     <div class="world__sunset" aria-hidden="true"></div>
     <div class="world__night" aria-hidden="true"></div>
@@ -145,7 +186,7 @@
     <span class="brand__mark" aria-hidden="true">🏡</span>
     <span class="brand__text">
       <strong>쿠사리 빌리지</strong>
-      <small>KUSARI VILLAGE <b>v4</b></small>
+      <small>KUSARI VILLAGE <b>v5</b></small>
     </span>
   </a>
 
