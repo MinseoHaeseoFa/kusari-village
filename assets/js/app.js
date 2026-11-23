@@ -612,9 +612,18 @@
       </button>`;
   }
 
+  /* 빈 부지 — 이미 선 건물의 발판과 겹치지 않는 자리에만 세운다 */
+  function freeSlots(d, count) {
+    const taken = allSites()
+      .filter((s) => s.district === d.id)
+      .map((s) => ({ p: sitePos(s), half: (widthOf(s) + 170) / 2 + 8 }));
+    return (d.slots || [])
+      .filter(([x, y]) => !taken.some((t) => Math.abs(t.p.x - x) < t.half && Math.abs(t.p.y - y) < 260))
+      .slice(0, count);
+  }
+
   function addPlotHtml(d) {
-    const z = d.zone || { cx: W.w / 2, cy: W.h / 2 };
-    const spots = (d.slots || []).slice(0, 2);
+    const spots = freeSlots(d, 2);
     return spots.map(([x, y], i) => `
       <button type="button" class="bld bld--plot" data-add="${esc(d.id)}" data-tier="1"
               style="--x:${x};--y:${y};--w:170;z-index:${Math.round(y)}"
@@ -706,6 +715,9 @@
     set("keyT1", t1);
     set("keyT2", t2);
     set("footerCount", sites.length);
+    set("leadSites", sites.length);
+    set("leadT1", t1);
+    set("leadT2", t2);
   }
 
   function renderDistrictChips() {
@@ -1746,7 +1758,9 @@
         }));
       });
     });
-    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 5곳과 별관 4곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
+    const n1 = allSites().filter((s) => s.tier !== 2).length;
+    const n2 = allSites().filter((s) => s.tier === 2).length;
+    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 " + n1 + "곳과 별관 " + n2 + "곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
     return stops;
   }
 

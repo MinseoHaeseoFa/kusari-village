@@ -17,7 +17,7 @@
    ============================================================ */
 window.KUSARI_TOWN = {
   version: 4,
-  updated: "2026-11-22",
+  updated: "2026-11-23",
   world: { w: 2400, h: 1660 },
 
   /* ── 지구 ─────────────────────────────────────── */
@@ -92,7 +92,7 @@ window.KUSARI_TOWN = {
     { id: "observatory",  name: "작은 천문대",         en: "Little Observatory", img: "assets/buildings/observatory.webp", w: 760, h: 760 }
   ],
 
-  /* ── 기본 입주 사이트 9곳 ─────────────────────── */
+  /* ── 기본 입주 사이트 10곳 ────────────────────── */
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
@@ -150,6 +150,13 @@ window.KUSARI_TOWN = {
       district: "work", building: "archive-hall", tier: 1, parent: null, pos: [780, 1360], w: 262,
       role: "업무 광장 · 독립 사이트",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
-      tags: ["KITECH", "감사 포털", "통합 자료"] }
+      tags: ["KITECH", "감사 포털", "통합 자료"] },
+
+    /* 본부 · 새싹 개발지 첫 입주민 */
+    { id: "ai-team-room", name: "쿠사리 AI 팀 회의실", url: "https://ai-team-room-457.pages.dev/", repo: "ai-team-room",
+      district: "sprout", building: "cafe", tier: 1, parent: null, pos: [1680, 1340], w: 258,
+      role: "새싹 개발지 · AI 팀 회의실",
+      desc: "쿠사리님과 김비서·뮤즈·제미나이·클로드가 방별로 모여 협업하는 팀 회의실.",
+      tags: ["AI 회의실", "팀 협업", "실시간"] }
   ]
 };
