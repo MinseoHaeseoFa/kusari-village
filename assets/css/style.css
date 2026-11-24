@@ -240,6 +240,8 @@ html[data-theme="sunset"] .stage__vignette{
 }
 .bld--tour .bubble{opacity:1;transform:translate(-50%,-12px)}
 .bld--tour .bubble{background:#FFF8E4;border-color:#E7B96F}
+/* 말풍선 없이 하이라이트만 (투어의 별관 정류장) */
+.bld--tour.bld--quiet .bubble{display:none}
 
 /* 걷기 모드: 건물 앞 */
 .bld--near .bubble{opacity:1;transform:translate(-50%,-16px);background:#EAF4FF;border-color:#8FBCE0}

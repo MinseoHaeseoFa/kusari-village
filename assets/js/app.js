@@ -1915,12 +1915,19 @@
     panTo(f.cx, f.cy, dZoom(f.s), dur == null ? 900 : dur);
   }
 
+  /* 투어 하이라이트만 걷어낸다(말풍선 숨김 표시 포함) */
+  function clearTourMark() {
+    $$(".bld--tour").forEach((el) => { el.classList.remove("bld--tour"); el.classList.remove("bld--quiet"); });
+  }
+
+  /* text 를 주지 않으면 하이라이트만 켜고 말풍선은 띄우지 않는다 */
   function showBubble(siteId, text) {
-    $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
+    clearTourMark();
     const el = bldsEl.querySelector('.bld[data-id="' + siteId + '"]');
     if (!el) return;
     const b = $(".bubble", el);
-    if (b) b.textContent = text;
+    if (b) b.textContent = text || "";
+    el.classList.toggle("bld--quiet", !text);
     el.classList.add("bld--tour");
   }
 
@@ -1982,13 +1989,14 @@
       const f = siteFocus(st.site);
       /* 도착 안내 카드가 건물 발밑 명패를 가리지 않도록 건물을 살짝 위로 앉힌다 */
       panTo(f.cx, f.cy + (isNarrow() ? 80 : 64), dZoom(f.s), 900);
-      showBubble(st.site.id, st.site.tier === 2 ? "별관 · 본부에 연결" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
+      /* 별관(하위) 건물 위에는 말풍선을 띄우지 않는다 — 하이라이트만 */
+      showBubble(st.site.id, st.site.tier === 2 ? "" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
       openBtn.textContent = opensInNewTab(st.site) ? "새 탭에서 열기 ↗" : "사이트 열기 ↗";
       openBtn.onclick = () => goToSite(st.site);
     } else {
-      $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
+      clearTourMark();
       if (typeof st.cx === "number") panTo(st.cx, st.cy, dZoom(st.s), 1100);
       $("#tourOpen").style.display = "none";
     }
@@ -2021,7 +2029,7 @@
     setTourState(false);
     document.body.classList.remove("is-touring");
     tourCap.hidden = true;
-    $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
+    clearTourMark();
     const btn = $("#tourBtn");
     if (btn) {
       btn.setAttribute("aria-pressed", "false");
