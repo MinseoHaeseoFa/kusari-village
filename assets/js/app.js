@@ -87,11 +87,33 @@
   function allSites() { return BASE_SITES.concat(state.custom); }
   function siteById(id) { return allSites().find((s) => s.id === id) || null; }
 
-  /* 사이트로 바로 이동 — 모달 없이 같은 탭(_self) */
+  /* 열림 방식 — 우리가 직접 컨트롤할 수 없는 외부 사이트(노션 등)는 새 탭,
+     우리가 만든 자체 웹앱(repo 가 있는 사이트)은 기존처럼 같은 탭에서 이동한다.
+     · newTab === true  → 새 탭
+     · repo 가 없음     → 새 탭 (우리 저장소가 없는 바깥 사이트)
+     · repo 가 있음     → 같은 탭 (우리가 배포·수정하는 자체 웹앱)                        */
+  function opensInNewTab(site) {
+    if (!site) return false;
+    return site.newTab === true || !site.repo;
+  }
+  function linkTarget(site) {
+    return opensInNewTab(site) ? ' target="_blank" rel="noopener noreferrer"' : "";
+  }
+  function openWord(site) {
+    return opensInNewTab(site) ? "새 탭에서 열기" : "사이트로 이동";
+  }
+
+  /* 사이트로 바로 이동 — 모달 없이. 자체 웹앱은 같은 탭(_self),
+     외부 사이트는 새 탭(_blank)으로 열어 이 빌리지 화면을 남겨 둔다. */
   function goToSite(site) {
     if (!site || !site.url) return;
     if (state.tour.on) stopTour();
     hideCoach();
+    if (opensInNewTab(site)) {
+      const w = window.open(site.url, "_blank", "noopener,noreferrer");
+      if (w) { try { w.opener = null; } catch (err) { /* noopener 로 이미 끊김 */ } }
+      return;
+    }
     window.location.href = site.url;
   }
   function isFav(id) { return state.favs.indexOf(id) > -1; }
@@ -627,8 +649,8 @@
     return `
       <button type="button" class="bld" data-id="${esc(site.id)}" data-tier="${tier}" data-hub="${hub}" data-href="${esc(site.url)}"
               style="--x:${p.x};--y:${p.y};--w:${w};z-index:${Math.round(p.y)}"
-              aria-label="${esc(site.name)}. ${esc(role)}. 사이트로 이동"
-              title="${esc(site.name)} — 누르면 바로 이동">
+              aria-label="${esc(site.name)}. ${esc(role)}. ${esc(openWord(site))}"
+              title="${esc(site.name)} — 누르면 ${opensInNewTab(site) ? "새 탭에서 열림" : "바로 이동"}">
         <span class="bld__pad" aria-hidden="true"></span>
         <span class="bld__light" aria-hidden="true"></span>
         <img class="bld__img" src="${esc(preset.img)}" alt="${esc(preset.name)} 건물 그림"
@@ -1158,7 +1180,7 @@
         <span class="tree__role">${esc(roleOf(child))}</span>
       </span>
       <span class="tree__acts">
-        <a class="tree__open" href="${esc(child.url)}" aria-label="${esc(child.name)} 열기">열기 ↗</a>
+        <a class="tree__open" href="${esc(child.url)}"${linkTarget(child)} aria-label="${esc(child.name)} ${esc(openWord(child))}">열기 ↗</a>
         <button type="button" class="tree__open" data-open="${esc(child.id)}" aria-label="${esc(child.name)} 정보">ℹ️</button>
       </span>
     </li>`;
@@ -1185,7 +1207,7 @@
           <span class="card__dist" style="color:${d.accent}"><i></i>${d.emoji} ${esc(d.name)}</span>
           <p class="card__desc">${esc(hub.desc || "아직 소개 글이 없어요.")}</p>
           <div class="card__foot">
-            <a class="card__open" href="${esc(hub.url)}" aria-label="${esc(hub.name)} 열기">열기 ↗</a>
+            <a class="card__open" href="${esc(hub.url)}"${linkTarget(hub)} aria-label="${esc(hub.name)} ${esc(openWord(hub))}">열기 ↗</a>
             ${repo ? `<a class="card__repo" href="${esc(repo)}" target="_blank" rel="noopener" aria-label="GitHub 저장소">${GH_ICON}</a>` : ""}
             <button type="button" class="card__more" data-open="${esc(hub.id)}" aria-label="${esc(hub.name)} 정보 보기">ℹ️ 정보</button>
           </div>
@@ -1225,7 +1247,7 @@
           ${parent ? `<span class="card__parentlink" style="margin-top:4px">⬆️ ${esc(parent.name)}</span>` : ""}
           <p class="card__desc">${esc(site.desc || "아직 소개 글이 없어요.")}</p>
           <div class="card__foot">
-            <a class="card__open" href="${esc(site.url)}" aria-label="${esc(site.name)} 열기">열기 ↗</a>
+            <a class="card__open" href="${esc(site.url)}"${linkTarget(site)} aria-label="${esc(site.name)} ${esc(openWord(site))}">열기 ↗</a>
             ${repo ? `<a class="card__repo" href="${esc(repo)}" target="_blank" rel="noopener" aria-label="GitHub 저장소">${GH_ICON}</a>` : ""}
             <button type="button" class="card__more" data-open="${esc(site.id)}" aria-label="${esc(site.name)} 정보 보기">ℹ️ 정보</button>
           </div>
@@ -1400,7 +1422,7 @@
               <span class="depthbox__branch" aria-hidden="true">${i === kids.length - 1 ? "└─" : "├─"}</span>
               <span class="depthbox__thumb"><img src="${esc(kp.img)}" alt="" width="30" height="30" loading="lazy"></span>
               <button type="button" class="depthbox__name" data-goto="${esc(k.id)}">${esc(k.name)}<span class="depthbox__role">${esc(roleOf(k))}</span></button>
-              <a class="depthbox__open" href="${esc(k.url)}" aria-label="${esc(k.name)} 열기">열기 ↗</a>
+              <a class="depthbox__open" href="${esc(k.url)}"${linkTarget(k)} aria-label="${esc(k.name)} ${esc(openWord(k))}">열기 ↗</a>
             </li>`;
           }).join("")}
         </ul>
@@ -1443,9 +1465,17 @@
     $("#detailDesc").textContent = site.desc || "아직 소개 글이 없어요. 정보를 수정해 한 줄 소개를 남겨 보세요.";
     $("#detailTags").innerHTML = (site.tags || []).map((t, i) => `<li><span class="tag${i % 2 ? " tag--soft" : ""}">${esc(t)}</span></li>`).join("");
     $("#detailDepth").innerHTML = depthBoxHtml(site);
+    /* 외부 사이트는 상세 시트의 URL 링크·열기 버튼도 새 탭으로 */
+    const newTab = opensInNewTab(site);
+    [$("#detailUrl"), $("#detailOpen")].forEach((a) => {
+      if (!a) return;
+      a.href = site.url;
+      if (newTab) { a.target = "_blank"; a.rel = "noopener noreferrer"; }
+      else { a.removeAttribute("target"); a.removeAttribute("rel"); }
+    });
     $("#detailUrl").textContent = shortUrl(site.url);
-    $("#detailUrl").href = site.url;
-    $("#detailOpen").href = site.url;
+    const openBtnEl = $("#detailOpen");
+    if (openBtnEl) openBtnEl.textContent = newTab ? "🚀 새 탭에서 열기" : "🚀 사이트 열기";
 
     const repo = repoUrl(site.repo), repoBtn = $("#detailRepo");
     if (repo) { repoBtn.hidden = false; repoBtn.href = repo; }
@@ -1856,7 +1886,8 @@
       showBubble(st.site.id, st.site.tier === 2 ? "별관 · 본부에 연결" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
-      openBtn.onclick = () => { window.location.href = st.site.url; };
+      openBtn.textContent = opensInNewTab(st.site) ? "새 탭에서 열기 ↗" : "사이트 열기 ↗";
+      openBtn.onclick = () => goToSite(st.site);
     } else {
       $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
       panTo(st.cx, st.cy, dZoom(st.s), 1300);
@@ -2114,7 +2145,7 @@
   /* QA 훅 */
   window.__KV = {
     state, sites: allSites, focusSite, startTour, stopTour, enterWalk, exitWalk,
-    setView, openDetail, openForm, panTo, applyCam, goToSite,
+    setView, openDetail, openForm, panTo, applyCam, goToSite, opensInNewTab,
     applyTime, applyWeather, phaseOfNow, phaseNow, loadWeather,
     get cam() { return state.cam; },
     get tour() { return state.tour; },

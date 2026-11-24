@@ -4,8 +4,13 @@
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1660) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
 
-   { id, name, url, repo, district, building, tier, parent, pos,
-     role, desc, tags }
+   { id, name, url, repo, newTab, district, building, tier, parent,
+     pos, role, desc, tags }
+
+   · newTab   : true 면 새 탭(_blank)으로 엽니다. 우리가 직접 컨트롤할 수
+              없는 외부 사이트(노션 등)에 씁니다. 우리가 만든 자체 웹앱은
+              repo 가 있으므로 같은 탭에서 이동합니다. (repo 가 없으면
+              newTab 을 쓰지 않아도 새 탭으로 열립니다)
 
    · district : travel | creative | work | sprout
    · building : presets 배열의 id (건물 그림 12종)
@@ -152,7 +157,7 @@ window.KUSARI_TOWN = {
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] },
 
-    { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null,
+    { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null, newTab: true,
       district: "work", building: "observatory", tier: 1, parent: null, pos: [584, 1450], w: 258,
       role: "업무 광장 · 독립 사이트",
       desc: "매일 아침 9시 공공·출연연 감사 동향과 주요 사례를 정리해 쌓는 노션 모닝 브리핑 아카이브.",
