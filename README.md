@@ -1,6 +1,6 @@
 # 🏡 쿠사리 빌리지 v5 (Kusari Village) — 한눈에 들어오는 2.5D 마을 · 시간대 · 실시간 날씨
 
-쿠사리님이 만든 웹앱 10곳이 **하나의 연속된 2.5D 마을**에 모여 사는 정적 웹앱입니다.
+쿠사리님이 만든 웹앱 11곳이 **하나의 연속된 2.5D 마을**에 모여 사는 정적 웹앱입니다.
 빌드 도구·CDN·외부 라이브러리 없이 `index.html` 하나로 열립니다.
 
 - **PC 에서는 마을 전체가 위아래 잘리지 않고 한눈에 들어옵니다.** 초기 화면과 최소 배율이 `fit`(마을 전체가 화면에 들어오는 배율)이라
@@ -88,7 +88,7 @@ kusari-village/
 새로 입주한 건물은 브라우저 `localStorage` 에 보관되고 앱 덱에도 카드가 생깁니다(정보 → `✏️ 정보 수정` / `🗑 철거`).
 `[📋 JSON 내보내기]` 로 전체 명단(계층·좌표 포함)을 백업할 수 있습니다.
 
-## 기본 입주 명단 (data/sites.js)
+## 기본 입주 명단 (data/sites.js) — 11곳
 
 | 계층 | 사이트 | 건물 | 주소 |
 | --- | --- | --- | --- |
@@ -101,6 +101,7 @@ kusari-village/
 | 본부 · 창작 골목 | 나만의 프롬프트 스튜디오 | atelier | https://my-prompt-studio-mu.vercel.app/ |
 | 본부 · 업무 광장 | 감사 그레이존 사례 DB | library | https://audit-grayzone-db.vercel.app/ |
 | 본부 · 업무 광장 | KITECH-Audit 포털 | archive-hall | https://kitech-audit.vercel.app/ |
+| 본부 · 업무 광장 | 감사 모닝 브리핑 | observatory | https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955 |
 | 본부 · 영감 놀이터 | 쿠사리 AI 팀 회의실 | cafe | https://ai-team-room-457.pages.dev/ |
 
 ### 한 줄 추가하기

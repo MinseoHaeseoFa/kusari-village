@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v5 · 기본 입주 명단 (KUSARI VILLAGE · sites)
+   🏡 쿠사리 빌리지 v5 · 기본 입주 명단 (KUSARI VILLAGE · sites · 11곳)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1660) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -92,7 +92,7 @@ window.KUSARI_TOWN = {
     { id: "observatory",  name: "작은 천문대",         en: "Little Observatory", img: "assets/buildings/observatory.webp", w: 760, h: 760 }
   ],
 
-  /* ── 기본 입주 사이트 10곳 ────────────────────── */
+  /* ── 기본 입주 사이트 11곳 ────────────────────── */
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
@@ -139,7 +139,7 @@ window.KUSARI_TOWN = {
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
 
-    /* 본부 · 업무 광장 독립 사이트 2곳 */
+    /* 본부 · 업무 광장 독립 사이트 3곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
       district: "work", building: "library", tier: 1, parent: null, pos: [330, 1300], w: 262,
       role: "업무 광장 · 독립 사이트",
@@ -151,6 +151,12 @@ window.KUSARI_TOWN = {
       role: "업무 광장 · 독립 사이트",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] },
+
+    { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null,
+      district: "work", building: "observatory", tier: 1, parent: null, pos: [584, 1450], w: 258,
+      role: "업무 광장 · 독립 사이트",
+      desc: "매일 아침 9시 공공·출연연 감사 동향과 주요 사례를 정리해 쌓는 노션 모닝 브리핑 아카이브.",
+      tags: ["모닝 브리핑", "공공·출연연", "노션"] },
 
     /* 본부 · 영감 놀이터 첫 입주민 */
     { id: "ai-team-room", name: "쿠사리 AI 팀 회의실", url: "https://ai-team-room-457.pages.dev/", repo: "ai-team-room",
