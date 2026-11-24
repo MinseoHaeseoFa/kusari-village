@@ -1241,6 +1241,20 @@ html[data-weather="snow"] .world__weather{
   .dock{left:8px;bottom:8px;}
 }
 
+/* ═══════════════════════════════════════════════════════════
+   v5.1 — PC 상단 브랜드 간판 2배 확대
+   · 데스크톱(761px 이상)에서만 간판 전체(아이콘·타이틀·부제·여백)를 약 2배로
+   · 모바일(760px 이하)은 기존 컴팩트 크기 그대로 (상단이 좁아 레이아웃이 깨진다)
+   · 간판이 커진 만큼 상단 바 높이(--topbar-h)를 함께 올려 지구 바·걷기 안내·앱 덱이 겹치지 않게 한다
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width:761px){
+  :root{--topbar-h:126px}
+  .brand{padding:12px 24px 12px 13px;border-radius:26px;gap:16px}
+  .brand__mark{width:76px;height:76px;border-radius:22px;font-size:40px;border-width:2px}
+  .brand__text strong{font-size:32px;letter-spacing:-.03em}
+  .brand__text small{font-size:18px;letter-spacing:.11em}
+}
+
 /* 지도가 한눈에 들어오는 배율에서는 명패를 조금 키워 이름이 읽히게 */
 .world[data-zoom="far"] .bld__name{font-size:24px}
 .world[data-zoom="far"] .bld[data-hub="true"] .bld__name{font-size:26px}
