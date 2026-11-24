@@ -240,8 +240,10 @@ html[data-theme="sunset"] .stage__vignette{
 }
 .bld--tour .bubble{opacity:1;transform:translate(-50%,-12px)}
 .bld--tour .bubble{background:#FFF8E4;border-color:#E7B96F}
-/* 말풍선 없이 하이라이트만 (투어의 별관 정류장) */
+/* 말풍선 없이 하이라이트만 (투어의 모든 정류장 · 본부/별관 공통) */
 .bld--tour.bld--quiet .bubble{display:none}
+/* 자동 투어 중에는 건물 위 말풍선을 일절 띄우지 않는다 (이중 안전장치) */
+body.is-touring .bld .bubble{display:none}
 
 /* 걷기 모드: 건물 앞 */
 .bld--near .bubble{opacity:1;transform:translate(-50%,-16px);background:#EAF4FF;border-color:#8FBCE0}

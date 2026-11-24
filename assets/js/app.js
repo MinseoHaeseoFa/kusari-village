@@ -1818,19 +1818,25 @@
         stops.push({
           key: hub.id, site: hub, s: kids.length ? 0.82 : 0.95,
           title: hub.name,
-          desc: (kids.length ? "본부 · 별관 " + kids.length + "개 연결 — " : "본부 · 독립 사이트 — ") + (hub.desc || roleOf(hub))
+          /* 안내 카드에도 `본부 · 별관 N개` 같은 구분 표기를 쓰지 않는다 */
+          desc: stripTierWord(hub.desc || roleOf(hub))
         });
         kids.forEach((k) => stops.push({
           key: k.id, site: k, s: 1.02,
           title: k.name,
-          desc: "별관 · " + hub.name + "에서 이어진 건물 — " + (k.desc || roleOf(k))
+          desc: stripTierWord(k.desc || roleOf(k))
         }));
       });
     });
     const n1 = allSites().filter((s) => s.tier !== 2).length;
     const n2 = allSites().filter((s) => s.tier === 2).length;
-    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 " + n1 + "곳과 별관 " + n2 + "곳, 모두 둘러봤어요. 미니맵이나 왼쪽 지구 바로 원하는 곳을 다시 찾아가세요." });
+    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "마을의 " + (n1 + n2) + "곳을 모두 둘러봤어요. 미니맵이나 왼쪽 지구 바로 원하는 곳을 다시 찾아가세요." });
     return stops;
+  }
+
+  /* 명패 한 줄 소개(`본부. …` / `별관. …`)의 구분 접두어만 걷어낸다 */
+  function stripTierWord(text) {
+    return String(text || "").replace(/^(본부|별관)\s*[.·]\s*/, "");
   }
 
   function siteFocus(site, s) {
@@ -1920,14 +1926,15 @@
     $$(".bld--tour").forEach((el) => { el.classList.remove("bld--tour"); el.classList.remove("bld--quiet"); });
   }
 
-  /* text 를 주지 않으면 하이라이트만 켜고 말풍선은 띄우지 않는다 */
-  function showBubble(siteId, text) {
+  /* 투어 정류장 표시 — 건물 하이라이트만 켜고 말풍선은 띄우지 않는다
+     (본부·별관·독립 사이트 구분 없이 전부 동일) */
+  function showBubble(siteId) {
     clearTourMark();
     const el = bldsEl.querySelector('.bld[data-id="' + siteId + '"]');
     if (!el) return;
     const b = $(".bubble", el);
-    if (b) b.textContent = text || "";
-    el.classList.toggle("bld--quiet", !text);
+    if (b) b.textContent = "";
+    el.classList.add("bld--quiet");
     el.classList.add("bld--tour");
   }
 
@@ -1989,8 +1996,8 @@
       const f = siteFocus(st.site);
       /* 도착 안내 카드가 건물 발밑 명패를 가리지 않도록 건물을 살짝 위로 앉힌다 */
       panTo(f.cx, f.cy + (isNarrow() ? 80 : 64), dZoom(f.s), 900);
-      /* 별관(하위) 건물 위에는 말풍선을 띄우지 않는다 — 하이라이트만 */
-      showBubble(st.site.id, st.site.tier === 2 ? "" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
+      /* 자동 투어에서는 본부·별관 구분 없이 건물 위 말풍선을 띄우지 않는다 — 하이라이트만 */
+      showBubble(st.site.id);
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
       openBtn.textContent = opensInNewTab(st.site) ? "새 탭에서 열기 ↗" : "사이트 열기 ↗";
