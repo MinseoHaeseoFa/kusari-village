@@ -741,7 +741,7 @@
       if (!b) return;
       const site = siteById(b.dataset.id);
       if (!site) return;
-      /* 건물을 누르면 설명 모달 없이 그 사이트로 바로 이동 (같은 탭) */
+      /* 건물을 누르면 설명 모달 없이 그 사이트로 바로 이동 (자체 앱은 같은 탭, 외부 사이트는 새 탭) */
       goToSite(site);
     };
     bldsEl.onkeydown = (e) => {
