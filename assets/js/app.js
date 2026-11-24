@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v5 — app.js
+   🏡 쿠사리 빌리지 v6 — app.js
    2.5D 마을 지도 · 본부/별관 계층 · 카메라/투어/걷기
    시간대(낮·노을·밤) 자동 전환 + 현지 실시간 날씨 풍경
    기본 명단(data/sites.js) + 내가 입주시킨 건물(localStorage)
@@ -78,7 +78,7 @@
     cam: { cx: W.w / 2, cy: W.h / 2, s: 0.55 },
     walk: { x: 1180, y: 1592, vx: 0, vy: 0, target: null, face: 1, moving: false, last: 0 },
     nearId: null,
-    tour: { on: false, i: 0, timer: null },
+    tour: { on: false, i: 0, timer: null, stops: [], leg: null },
     hoverDistrict: null
   };
 
@@ -755,7 +755,7 @@
     };
   }
 
-  /* ── 상단 요약 · 지구 칩 ──────────────────────────────── */
+  /* ── 상단 요약 · 지구 바 ──────────────────────────────── */
   function renderStats() {
     const sites = allSites();
     const t1 = sites.filter((s) => s.tier !== 2).length;
@@ -772,15 +772,18 @@
     set("leadT2", t2);
   }
 
+  /* 지구 바 — 간판 하단 좌측의 세로 목록.
+     한 줄에 [이모지 + 지구명] 왼쪽, [입주 수] 오른쪽 정렬. */
   function renderDistrictChips() {
     const nav = $("#districtChips");
     if (!nav) return;
     nav.innerHTML = DISTRICTS.map((d) => {
       const n = allSites().filter((s) => s.district === d.id).length;
       const short = esc(d.name.replace(" 지구", "").replace(" 골목", "").replace(" 광장", "").replace(" 놀이터", ""));
-      return `<button type="button" class="hud__chip" data-district="${esc(d.id)}">
-        <span aria-hidden="true">${d.emoji}</span><span class="hud__long">${esc(d.name)}</span><span class="hud__short">${short}</span> <b>${n}</b></button>`;
-    }).join("") + `<span class="hud__depth" title="본부 아래에 별관이 매달립니다"><i>별</i> 별관은 본부에 연결</span>`;
+      return `<button type="button" class="hud__chip" data-district="${esc(d.id)}" title="${esc(d.name)}로 이동">
+        <span class="hud__label"><span class="hud__ico" aria-hidden="true">${d.emoji}</span><span class="hud__long">${esc(d.name)}</span><span class="hud__short">${short}</span></span>
+        <b class="hud__n">${n}</b></button>`;
+    }).join("");
 
     nav.onclick = (e) => {
       const btn = e.target.closest("[data-district]");
@@ -1205,6 +1208,7 @@
             <button type="button" class="card__star${fav ? " is-on" : ""}" data-fav="${esc(hub.id)}" aria-pressed="${fav}" aria-label="${esc(hub.name)} 즐겨찾기">★</button>
           </div>
           <span class="card__dist" style="color:${d.accent}"><i></i>${d.emoji} ${esc(d.name)}</span>
+          <span class="card__role">${esc(roleOf(hub))}</span>
           <p class="card__desc">${esc(hub.desc || "아직 소개 글이 없어요.")}</p>
           <div class="card__foot">
             <a class="card__open" href="${esc(hub.url)}"${linkTarget(hub)} aria-label="${esc(hub.name)} ${esc(openWord(hub))}">열기 ↗</a>
@@ -1796,7 +1800,11 @@
   if ($("#formExportBtn")) $("#formExportBtn").addEventListener("click", exportJson);
 
   /* ── 자동 투어 ────────────────────────────────────────── */
+  /*    대문(WALK_SPAWN)에 서 있는 아바타가 정류장마다 건물 앞까지
+        걸어가고, 카메라가 부드럽게 따라간 뒤 안내를 보여준다.          */
   const tourCap = $("#tourCap");
+  const TOUR_SPEED = 258;  /* 세계 좌표 px/초 — 뛰지 않는 여유 있는 도보 속도 */
+  const TOUR_ACC = 780;    /* px/초² — 출발·도착을 부드럽게 */
 
   function tourStops() {
     const stops = [{
@@ -1821,7 +1829,7 @@
     });
     const n1 = allSites().filter((s) => s.tier !== 2).length;
     const n2 = allSites().filter((s) => s.tier === 2).length;
-    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 " + n1 + "곳과 별관 " + n2 + "곳, 모두 둘러봤어요. 미니맵이나 지구 칩으로 원하는 곳을 다시 찾아가세요." });
+    stops.push({ key: "overview", cx: W.w / 2, cy: 830, s: minScale, title: "마을 한 바퀴 완료", desc: "본부 " + n1 + "곳과 별관 " + n2 + "곳, 모두 둘러봤어요. 미니맵이나 왼쪽 지구 바로 원하는 곳을 다시 찾아가세요." });
     return stops;
   }
 
@@ -1831,6 +1839,76 @@
     const w = widthOf(site);
     const h = (w * (preset.h || 700)) / (preset.w || 760);
     return { cx: p.x, cy: p.y - h * 0.52, s: s || (site.tier === 2 ? 1.0 : 0.9) };
+  }
+
+  /* 정류장 인사 지점 — 건물 발밑 앞쪽 여백.
+     명패는 발밑 아래로 붙으므로 아바타가 이름을 가리지 않고,
+     마을 가운데(오솔길) 쪽으로 살짝 비켜서서 길에서 온 사람처럼 선다. */
+  function greetPoint(site) {
+    const p = sitePos(site);
+    const w = widthOf(site);
+    const side = p.x > W.w / 2 ? -1 : 1;
+    return { x: Math.round(p.x + side * w * 0.34), y: Math.round(p.y + 26) };
+  }
+
+  function setTourState(walking) {
+    const badge = $("#tourState");
+    if (badge) badge.hidden = !walking;
+    if (tourCap) tourCap.classList.toggle("is-walking", !!walking);
+  }
+
+  /* 아바타를 목적지까지 걷게 한다 — 도착하면 onArrive 를 부른다 */
+  function startTourWalk(to, onArrive, opts) {
+    opts = opts || {};
+    stopCamAnim();  /* 도착 연출 중이던 카메라 이동을 끊고 추적 카메라로 넘긴다 */
+    const from = { x: state.walk.x, y: state.walk.y };
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const dist = Math.hypot(dx, dy);
+    state.tour.leg = {
+      from: from, to: to, dist: dist, left: dist, v: 0,
+      ux: dist ? dx / dist : 0, uy: dist ? dy / dist : 0,
+      follow: opts.follow !== false,
+      camS: opts.camS || state.cam.s,
+      onArrive: onArrive || null
+    };
+    if (Math.abs(dx) > 4) state.walk.face = dx > 0 ? 1 : -1;
+    state.walk.moving = dist > 1;
+    updateAvatar();
+    setTourState(true);
+    if (dist <= 1) finishTourWalk();
+  }
+
+  function finishTourWalk() {
+    const leg = state.tour.leg;
+    state.tour.leg = null;
+    if (leg) { state.walk.x = leg.to.x; state.walk.y = leg.to.y; }
+    state.walk.moving = false;
+    updateAvatar();
+    if (leg && typeof leg.onArrive === "function") leg.onArrive();
+  }
+
+  /* 매 프레임: 일정한 도보 속도로 걸어가고 카메라가 뒤따라간다 */
+  function stepTourWalk(dt) {
+    const leg = state.tour.leg;
+    if (!leg) return;
+    /* 남은 거리에 맞춘 목표 속도 — 도착이 가까우면 저절로 느려진다 */
+    const vTarget = Math.min(TOUR_SPEED, Math.sqrt(2 * TOUR_ACC * Math.max(0, leg.left)));
+    leg.v += clamp(vTarget - leg.v, -TOUR_ACC * 1.7 * dt, TOUR_ACC * dt);
+    const step = Math.min(leg.left, Math.max(0, leg.v * dt));
+    leg.left = Math.max(0, leg.left - step);
+    state.walk.x = leg.to.x - leg.ux * leg.left;
+    state.walk.y = leg.to.y - leg.uy * leg.left;
+    state.walk.moving = true;
+    updateAvatar();
+
+    if (leg.follow) {
+      const k = 1 - Math.pow(0.0016, dt);
+      state.cam.cx = lerp(state.cam.cx, state.walk.x, k);
+      state.cam.cy = lerp(state.cam.cy, state.walk.y - 120, k);
+      state.cam.s = lerp(state.cam.s, leg.camS, 1 - Math.pow(0.08, dt));
+      applyCam();
+    }
+    if (leg.left <= 0.5) finishTourWalk();
   }
   function focusSite(site, dur) {
     const f = siteFocus(site);
@@ -1860,6 +1938,8 @@
     state.tour.on = true;
     state.tour.stops = stops;
     state.tour.i = -1;
+    state.tour.leg = null;
+    document.body.classList.add("is-touring");
     $("#tourBtn").setAttribute("aria-pressed", "true");
     $("#tourBtn .dock__ico").textContent = "❚❚";
     $("#tourBtn .dock__label").textContent = "투어 정지";
@@ -1879,10 +1959,29 @@
     renderTourDots(stops.length, state.tour.i);
     $("#tourTitle").textContent = st.title;
     $("#tourDesc").textContent = st.desc;
+    $("#tourOpen").style.display = "none";
 
+    /* 정류장마다: 지금 아바타 위치 → 건물 앞까지 천천히 걸어간 뒤 안내 */
+    if (st.site) {
+      startTourWalk(greetPoint(st.site), () => arriveAtStop(st), { camS: dZoom(st.s) });
+    } else if (st.key === "overview") {
+      /* 마지막: 안내자가 대문으로 걸어 돌아가는 동안 마을 전체를 조망 */
+      startTourWalk({ x: WALK_SPAWN.x, y: WALK_SPAWN.y }, () => arriveAtStop(st), { camS: minScale, follow: false });
+      panTo(st.cx, st.cy, dZoom(st.s), 1500);
+    } else {
+      /* 마을 입구: 안내자가 대문 앞으로 걸어온다 */
+      startTourWalk({ x: WALK_SPAWN.x, y: WALK_SPAWN.y }, () => arriveAtStop(st), { camS: dZoom(st.s) });
+    }
+  }
+
+  /* 정류장 도착 — 카메라를 건물 앞에 앉히고 투어 카드/안내를 보여준다 */
+  function arriveAtStop(st) {
+    setTourState(false);
+    $("#tourDesc").textContent = st.desc;
     if (st.site) {
       const f = siteFocus(st.site);
-      panTo(f.cx, f.cy, dZoom(f.s), 1200);
+      /* 도착 안내 카드가 건물 발밑 명패를 가리지 않도록 건물을 살짝 위로 앉힌다 */
+      panTo(f.cx, f.cy + (isNarrow() ? 80 : 64), dZoom(f.s), 900);
       showBubble(st.site.id, st.site.tier === 2 ? "별관 · 본부에 연결" : (isHub(st.site) ? "본부 · 별관 " + childrenOf(st.site.id).length + "개" : "본부 · 독립 사이트"));
       const openBtn = $("#tourOpen");
       openBtn.style.display = "";
@@ -1890,17 +1989,37 @@
       openBtn.onclick = () => goToSite(st.site);
     } else {
       $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
-      panTo(st.cx, st.cy, dZoom(st.s), 1300);
+      if (typeof st.cx === "number") panTo(st.cx, st.cy, dZoom(st.s), 1100);
       $("#tourOpen").style.display = "none";
     }
-    const dwell = st.site ? (st.site.tier === 2 ? 2800 : 3600) : 3400;
+    const dwell = st.site ? (st.site.tier === 2 ? 2800 : 3400) : 3400;
+    clearTimeout(state.tour.timer);
     state.tour.timer = setTimeout(nextTourStep, dwell);
+  }
+
+  /* 투어 카드의 ◀ 이전 / 다음 ▶ — 지금 서 있는 자리에서 다음 목적지로 걷는다 */
+  function goTourStep(delta) {
+    if (!state.tour.on) return;
+    const last = state.tour.stops.length - 1;
+    const target = clamp(state.tour.i + delta, 0, last);
+    clearTimeout(state.tour.timer);
+    state.tour.leg = null;
+    state.walk.moving = false;
+    updateAvatar();
+    state.tour.i = target - 1;
+    nextTourStep();
   }
 
   function stopTour(finished) {
     if (!state.tour.on) return;
     state.tour.on = false;
     clearTimeout(state.tour.timer);
+    /* 걷던 발걸음은 그 자리에서 자연스럽게 멈춘다 */
+    state.tour.leg = null;
+    state.walk.moving = false;
+    updateAvatar();
+    setTourState(false);
+    document.body.classList.remove("is-touring");
     tourCap.hidden = true;
     $$(".bld--tour").forEach((el) => el.classList.remove("bld--tour"));
     const btn = $("#tourBtn");
@@ -1917,6 +2036,8 @@
     if (state.tour.on) stopTour(); else startTour();
   });
   if ($("#tourStop")) $("#tourStop").addEventListener("click", () => stopTour());
+  if ($("#tourNext")) $("#tourNext").addEventListener("click", () => goTourStep(1));
+  if ($("#tourPrev")) $("#tourPrev").addEventListener("click", () => goTourStep(-1));
 
   /* ── 걷기 모드 ────────────────────────────────────────── */
   const avatar = $("#avatar");
@@ -2045,7 +2166,8 @@
   function tick(now) {
     const dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    if (state.mode === "walk") {
+    if (state.tour.leg) stepTourWalk(dt);
+    else if (state.mode === "walk") {
       const speed = 340;
       let vx = 0, vy = 0;
       keys.forEach((k) => { const v = KEYMAP[k]; if (v) { vx += v[0]; vy += v[1]; } });
@@ -2146,6 +2268,7 @@
   window.__KV = {
     state, sites: allSites, focusSite, startTour, stopTour, enterWalk, exitWalk,
     setView, openDetail, openForm, panTo, applyCam, goToSite, opensInNewTab,
+    greetPoint, startTourWalk, goTourStep, arriveAtStop,
     applyTime, applyWeather, phaseOfNow, phaseNow, loadWeather,
     get cam() { return state.cam; },
     get tour() { return state.tour; },
