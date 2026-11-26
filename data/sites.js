@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v6 · 기본 입주 명단 (KUSARI VILLAGE · sites · 11곳)
+   🏡 쿠사리 빌리지 v6 · 기본 입주 명단 (KUSARI VILLAGE · sites · 12곳)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1660) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -97,7 +97,7 @@ window.KUSARI_TOWN = {
     { id: "observatory",  name: "작은 천문대",         en: "Little Observatory", img: "assets/buildings/observatory.webp", w: 760, h: 760 }
   ],
 
-  /* ── 기본 입주 사이트 11곳 ────────────────────── */
+  /* ── 기본 입주 사이트 12곳 ────────────────────── */
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
@@ -131,7 +131,7 @@ window.KUSARI_TOWN = {
       desc: "출발·귀환 교통부터 숙소와 동선까지, 7개 탭으로 짜는 여행 계획. 나의 여행 지도에서 이어집니다.",
       tags: ["여행 계획", "숙소·동선", "Trail Log"] },
 
-    /* 본부 · 창작 골목 독립 사이트 2곳 */
+    /* 본부 · 창작 골목 독립 사이트 3곳 */
     { id: "life-film-photo-guide", name: "인생이라는 필름", url: "https://life-film-photo-guide.vercel.app/", repo: "life-film-photo-guide",
       district: "creative", building: "film-lab", tier: 1, parent: null, pos: [1720, 700], w: 258,
       role: "본부. 인생 사진 촬영 가이드",
@@ -143,6 +143,12 @@ window.KUSARI_TOWN = {
       role: "본부. 이미지·영상 프롬프트 작업실",
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
+
+    { id: "slidefix-pro", name: "SlideFix Pro", url: "./apps/slidefix/", repo: "kusari-village",
+      district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2060, 560], w: 258,
+      role: "본부. 이미지·PDF 깨진 글자 복원",
+      desc: "노트북LM 슬라이드나 이미지·PDF 속 깨진 한글·오타를 드래그 한 번으로 지우고 새 글자로 복원하는 에디터.",
+      tags: ["슬라이드 수정", "OCR", "PDF·이미지"] },
 
     /* 본부 · 업무 광장 독립 사이트 3곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
