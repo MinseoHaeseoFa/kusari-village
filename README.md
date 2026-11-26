@@ -99,7 +99,7 @@ kusari-village/
 | 별관 · 여행 지구 | 나의 여행 플래너 | train-station | https://my-travel-planner-kohl.vercel.app/ |
 | 본부 · 창작 골목 | 인생이라는 필름 | film-lab | https://life-film-photo-guide.vercel.app/ |
 | 본부 · 창작 골목 | 나만의 프롬프트 스튜디오 | atelier | https://my-prompt-studio-mu.vercel.app/ |
-| 본부 · 창작 골목 | SlideFix Pro | greenhouse | ./apps/slidefix/ (이 저장소 안) |
+| 본부 · 창작 골목 | SlideFix Pro | greenhouse | https://sliderfix-pro.vercel.app/ |
 | 본부 · 업무 광장 | 감사 그레이존 사례 DB | library | https://audit-grayzone-db.vercel.app/ |
 | 본부 · 업무 광장 | KITECH-Audit 포털 | archive-hall | https://kitech-audit.vercel.app/ |
 | 본부 · 업무 광장 | 감사 모닝 브리핑 (노션 · 새 탭) | observatory | https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955 |

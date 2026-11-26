@@ -144,7 +144,7 @@ window.KUSARI_TOWN = {
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
 
-    { id: "slidefix-pro", name: "SlideFix Pro", url: "./apps/slidefix/", repo: "kusari-village",
+    { id: "slidefix-pro", name: "SlideFix Pro", url: "https://sliderfix-pro.vercel.app/", repo: "sliderfix-pro",
       district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2060, 550], w: 215,
       role: "본부. 이미지·PDF 깨진 글자 복원",
       desc: "노트북LM 슬라이드나 이미지·PDF 속 깨진 한글·오타를 드래그 한 번으로 지우고 새 글자로 복원하는 에디터.",
