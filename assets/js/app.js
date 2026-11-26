@@ -401,13 +401,19 @@
     [2540, 2070, 1.0], [-160, -240, 1.0], [780, -370, 0.95], [1980, -310, 1.0], [1400, 2130, 1.0]
   ];
 
-  function signSvg(x, y, label, bg, stroke, fg) {
+  /* 지구 표지판 — 구역 색으로 칠한 큰 팻말.
+     위 칸에 이모지 + 한글 이름, 아래 칸에 영문 이름을 넣는다. */
+  function signSvg(x, y, label, en, accent) {
+    const W_BOARD = 268, H_BOARD = 78;
     return `<g>
-      <ellipse cx="${x}" cy="${y + 64}" rx="17" ry="5" fill="#3F5B45" opacity=".18"/>
-      <rect x="${x - 7}" y="${y}" width="14" height="64" rx="6" fill="#B08A57"/>
-      <rect x="${x - 84}" y="${y - 56}" width="168" height="46" rx="11" fill="${bg}" stroke="${stroke}" stroke-width="2.8"/>
-      <rect x="${x - 77}" y="${y - 49}" width="154" height="32" rx="8" fill="#FFF" opacity=".38"/>
-      <text x="${x}" y="${y - 25}" text-anchor="middle" font-size="21" font-weight="900" fill="${fg}" font-family="var(--font)">${label}</text>
+      <ellipse cx="${x}" cy="${y + 72}" rx="30" ry="8" fill="#3F5B45" opacity=".22"/>
+      <rect x="${x - 9}" y="${y - 4}" width="18" height="76" rx="8" fill="#B08A57"/>
+      <rect x="${x - 7}" y="${y - 4}" width="6" height="76" rx="3" fill="#C79E6C" opacity=".7"/>
+      <rect x="${x - W_BOARD / 2 + 4}" y="${y - H_BOARD + 6}" width="${W_BOARD}" height="${H_BOARD}" rx="16" fill="#3F5B45" opacity=".2"/>
+      <rect x="${x - W_BOARD / 2}" y="${y - H_BOARD}" width="${W_BOARD}" height="${H_BOARD}" rx="16" fill="${accent}" stroke="#FFFDF4" stroke-opacity=".95" stroke-width="4"/>
+      <rect x="${x - W_BOARD / 2 + 8}" y="${y - H_BOARD + 7}" width="${W_BOARD - 16}" height="${H_BOARD * 0.5}" rx="11" fill="#FFF" opacity=".14"/>
+      <text x="${x}" y="${y - H_BOARD + 41}" text-anchor="middle" font-size="30" font-weight="900" fill="#FFFDF6" font-family="var(--font)">${label}</text>
+      <text x="${x}" y="${y - H_BOARD + 65}" text-anchor="middle" font-size="13" font-weight="800" letter-spacing="2.4" fill="#FFFDF6" opacity=".82" font-family="var(--font)">${en}</text>
     </g>`;
   }
 
@@ -418,12 +424,26 @@
   }
 
   function terrainSVG() {
-    const zones = DISTRICTS.map((d) => {
+    /* 지구 권역 — 바닥 색을 구역별로 확실히 달리 깔고, 경계선을 두 겹으로 세운다.
+       (구역이 '어디까지인지'가 한눈에 읽히도록 v7.1 에서 톤을 올렸다) */
+    const zones = DISTRICTS.map((d, i) => {
       const z = d.zone;
       if (!z) return "";
-      return `<ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="${d.accent}" opacity=".05"/>
-        <ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="none" stroke="${d.accent}" stroke-opacity=".18"
-          stroke-width="3.5" stroke-dasharray="22 24"/>`;
+      const gid = "zoneTint" + i;
+      return `<defs>
+          <radialGradient id="${gid}" cx=".5" cy=".5" r=".5">
+            <stop offset="0" stop-color="${d.accent}" stop-opacity=".34"/>
+            <stop offset=".6" stop-color="${d.accent}" stop-opacity=".27"/>
+            <stop offset="1" stop-color="${d.accent}" stop-opacity=".19"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="url(#${gid})"/>
+        <ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="none" stroke="${d.accent}" stroke-opacity=".12"
+          stroke-width="26"/>
+        <ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx}" ry="${z.ry}" fill="none" stroke="${d.accent}" stroke-opacity=".8"
+          stroke-width="7" stroke-dasharray="30 20"/>
+        <ellipse cx="${z.cx}" cy="${z.cy}" rx="${z.rx - 18}" ry="${z.ry - 18}" fill="none" stroke="${d.accent}"
+          stroke-opacity=".38" stroke-width="3"/>`;
     }).join("");
 
     const roadSvg = ROADS.map((d) => `
@@ -543,19 +563,13 @@
     <ellipse cx="1010" cy="606" rx="204" ry="102" fill="none" stroke="#BFA981" stroke-opacity=".5" stroke-width="3" stroke-dasharray="14 16"/>
 
     <!-- 업무 광장 — 앞으로 입주할 앱까지 넉넉히 받는 큰 돌바닥 -->
-    <ellipse cx="570" cy="1510" rx="482" ry="330" fill="url(#gShade)"/>
-    <ellipse cx="570" cy="1505" rx="476" ry="322" fill="url(#gPlaza)"/>
-    <ellipse cx="570" cy="1505" rx="476" ry="322" fill="url(#pStone)" opacity=".4"/>
-    <ellipse cx="570" cy="1505" rx="476" ry="322" fill="none" stroke="#BFA981" stroke-width="5"/>
-    <ellipse cx="570" cy="1505" rx="404" ry="262" fill="none" stroke="#BFA981" stroke-opacity=".38" stroke-width="3" stroke-dasharray="16 18"/>
+    <ellipse cx="570" cy="1528" rx="492" ry="358" fill="url(#gShade)"/>
+    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="url(#gPlaza)"/>
+    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="url(#pStone)" opacity=".4"/>
+    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="none" stroke="#BFA981" stroke-width="5"/>
+    <ellipse cx="570" cy="1522" rx="416" ry="288" fill="none" stroke="#BFA981" stroke-opacity=".38" stroke-width="3" stroke-dasharray="16 18"/>
 
-    <!-- 광장 안 작은 잔디마당 둘 (건물 사이 빈 돌바닥을 채우는 정원) -->
-    <g>
-      <ellipse cx="330" cy="1556" rx="136" ry="94" fill="#B4CB86" opacity=".62"/>
-      <ellipse cx="330" cy="1556" rx="136" ry="94" fill="none" stroke="#8FA864" stroke-opacity=".5" stroke-width="3" stroke-dasharray="12 10"/>
-      <ellipse cx="820" cy="1556" rx="136" ry="94" fill="#B4CB86" opacity=".62"/>
-      <ellipse cx="820" cy="1556" rx="136" ry="94" fill="none" stroke="#8FA864" stroke-opacity=".5" stroke-width="3" stroke-dasharray="12 10"/>
-    </g>
+    <!-- 광장은 비워 둔 돌바닥으로 남기고, 다음 입주앱(감사보고서 자동화) 자리를 미리 확보해 둔다 -->
 
     <!-- 대문 앞 마당 -->
     <ellipse cx="1180" cy="1748" rx="176" ry="82" fill="url(#gPlaza)" opacity=".92"/>
@@ -590,8 +604,8 @@
       <path d="M1092 1052h176" stroke="#B39A72" stroke-width="3" opacity=".45"/>
     </g>
 
-    <!-- 입구 아치 -->
-    <g transform="translate(0 240)">
+    <!-- 입구 아치 — 앞마당(대문 앞 마당)에서 아바타가 문 앞에 서도록 조금 위로 올려 세운다 -->
+    <g transform="translate(0 144)">
       <ellipse cx="1180" cy="1570" rx="160" ry="26" fill="url(#gShadeDark)"/>
       <rect x="1064" y="1436" width="32" height="140" rx="14" fill="#D3B486"/>
       <rect x="1064" y="1436" width="11" height="140" rx="5" fill="#C6A575"/>
@@ -612,13 +626,12 @@
       </g>
     </g>
 
-    <!-- 지구 표지판 -->
-    ${signSvg(1074, 952, "🧭 여행 지구", "#FBEFD8", "#C9AC80", "#8A6034")}
-    ${signSvg(1600, 884, "📸 창작 골목", "#FBE9F0", "#D3A6BC", "#9C5C79")}
-    ${signSvg(1085, 1490, "🏛️ 업무 광장", "#E9F0E7", "#A3B9A5", "#4E6A58")}
-    ${signSvg(1436, 1492, "💡 영감 놀이터", "#F1F5DE", "#B4C68B", "#6A7A38")}
+    <!-- 지구 표지판 — 각 구역 앞길 땅 위에 큰 팻말로 세운다 -->
+    ${signSvg(1010, 852, "🧭 여행 지구", "TRAVEL DISTRICT", "#C1663B")}
+    ${signSvg(1600, 896, "📸 창작 골목", "CREATIVE ALLEY", "#B06A8A")}
+    ${signSvg(250, 1615, "🏛️ 업무 광장", "WORK PLAZA", "#5E7A6A")}
+    ${signSvg(1450, 1560, "💡 영감 놀이터", "IDEA PLAYGROUND", "#7E8F45")}
 
-    <!-- 지구 표지판 글씨 크기 보정용 여백 -->
     <!-- 장식 -->
     ${TREES.map(([x, y, s]) => svgUse(x % 3 === 0 ? "tree--warm" : "tree", x, y, s)).join("")}
     ${BUSHES.map(([x, y, s]) => svgUse("bush", x, y, s)).join("")}
@@ -676,33 +689,10 @@
       </button>`;
   }
 
-  /* 빈 부지 — 이미 선 건물의 발판과 겹치지 않는 자리에만 세운다 */
-  function freeSlots(d, count) {
-    const taken = allSites()
-      .filter((s) => s.district === d.id)
-      .map((s) => ({ p: sitePos(s), half: (widthOf(s) + 170) / 2 + 8 }));
-    return (d.slots || [])
-      .filter(([x, y]) => !taken.some((t) => Math.abs(t.p.x - x) < t.half && Math.abs(t.p.y - y) < 260))
-      .slice(0, count);
-  }
-
-  function addPlotHtml(d) {
-    const spots = freeSlots(d, 2);
-    return spots.map(([x, y], i) => `
-      <button type="button" class="bld bld--plot" data-add="${esc(d.id)}" data-tier="1"
-              style="--x:${x};--y:${y};--w:170;z-index:${Math.round(y)}"
-              aria-label="${esc(d.name)} 빈 부지에 새 건물 입주">
-        <span class="plotpad" aria-hidden="true"><b>＋</b><em>새 부지 ${i + 1}</em></span>
-        <span class="bld__plate bld__plate--plot">
-          <span class="bld__name">새 건물 입주</span>
-          <span class="bld__role">눌러서 이 자리에</span>
-        </span>
-      </button>`).join("");
-  }
-
   function renderWorld() {
-    bldsEl.innerHTML = allSites().map(bldHtml).join("")
-      + addPlotHtml(districtOf("work")) + addPlotHtml(districtOf("sprout"));
+    /* 지도 위 `새 건물 입주` 빈 부지는 그리지 않는다 (상단 `＋ 새 건물 입주` 버튼으로만 입주).
+       빈 자리는 data/sites.js 의 district.slots 에 남겨 두어 다음 건물이 차례로 들어온다. */
+    bldsEl.innerHTML = allSites().map(bldHtml).join("");
     renderLinks();
     bindBldEvents();
   }
@@ -1821,7 +1811,7 @@
 
   function tourStops() {
     const stops = [{
-      key: "entrance", cx: 1180, cy: 1640, s: 0.95,
+      key: "entrance", cx: 1180, cy: 1700, s: 0.95,
       title: "마을 입구", desc: "어서 오세요, 쿠사리 빌리지입니다. 강을 건너 오솔길을 따라 여행 지구 본부로 올라가 볼까요?"
     }];
     const order = ["travel", "creative", "work", "sprout"];
@@ -2070,8 +2060,8 @@
   /* ── 걷기 모드 ────────────────────────────────────────── */
   const avatar = $("#avatar");
   const keys = new Set();
-  /* 기본 스폰 — 대문 아치 바로 앞(문 안쪽 길 위) */
-  const WALK_SPAWN = { x: 1180, y: 1832 };
+  /* 기본 스폰 — 대문 아치 바로 앞(문 밖 앞마당 돌바닥) */
+  const WALK_SPAWN = { x: 1180, y: 1812 };
   function enterWalk() {
     stopTour();
     if (state.view !== "map") setView("map", true);

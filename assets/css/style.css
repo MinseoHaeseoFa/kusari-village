@@ -1107,7 +1107,8 @@ html[data-theme="night"] .stage__vignette{
 }
 html[data-theme="night"] .world__stars{opacity:.7}
 .world__moon{
-  position:absolute;right:11%;top:13%;width:168px;height:168px;border-radius:50%;
+  /* 건물(특히 SlideFix Pro)이 달 앞을 가리지 않도록 하늘 맨 위쪽에 띄운다 */
+  position:absolute;right:13%;top:2.4%;width:168px;height:168px;border-radius:50%;
   pointer-events:none;opacity:0;transition:opacity 1.2s ease;
   background:radial-gradient(circle at 36% 32%, #FFFFFF 0%, #FFFDF0 38%, #F4EFD9 60%, rgba(232,230,214,0) 76%);
   box-shadow:0 0 64px 26px rgba(196,218,255,.20);
@@ -1245,7 +1246,7 @@ html[data-weather="snow"] .world__weather{
   .wxchip{padding:5px 8px;font-size:10.5px;gap:3px}
   .wxchip__ico{font-size:12px}
   .wxchip__temp{font-size:10.5px}
-  .world__moon{right:6%;width:130px;height:130px}
+  .world__moon{right:6%;top:3%;width:130px;height:130px}
 }
 @media (max-width:400px){
   .wxchip{padding:5px 8px;gap:3px}
@@ -1273,11 +1274,12 @@ html[data-weather="snow"] .world__weather{
    · 간판이 커진 만큼 상단 바 높이(--topbar-h)를 함께 올려 지구 바·걷기 안내·앱 덱이 겹치지 않게 한다
    ═══════════════════════════════════════════════════════════ */
 @media (min-width:761px){
-  :root{--topbar-h:126px}
-  .brand{padding:12px 24px 12px 13px;border-radius:26px;gap:16px}
-  .brand__mark{width:76px;height:76px;border-radius:22px;font-size:40px;border-width:2px}
-  .brand__text strong{font-size:32px;letter-spacing:-.03em}
-  .brand__text small{font-size:18px;letter-spacing:.11em}
+  :root{--topbar-h:92px}
+  /* v7.1 — 상단 간판을 이전(2배) 크기의 70%로 줄여 지도를 덜 가린다 */
+  .brand{padding:8px 17px 8px 9px;border-radius:18px;gap:11px}
+  .brand__mark{width:53px;height:53px;border-radius:15px;font-size:28px;border-width:1.5px}
+  .brand__text strong{font-size:22px;letter-spacing:-.02em}
+  .brand__text small{font-size:12.5px;letter-spacing:.1em}
 }
 
 /* 지도가 한눈에 들어오는 배율에서는 명패를 조금 키워 이름이 읽히게 */

@@ -36,7 +36,7 @@ window.KUSARI_TOWN = {
       accent: "#C1663B",
       accent2: "#E9B98C",
       tint: "#FDEFDF",
-      zone: { cx: 1010, cy: 520, rx: 680, ry: 505 },
+      zone: { cx: 1010, cy: 500, rx: 680, ry: 450 },
       look: { cx: 1010, cy: 500, s: 0.82 },
       slots: [[520, 620], [380, 880], [1520, 380], [1490, 910]]
     },
@@ -49,7 +49,7 @@ window.KUSARI_TOWN = {
       accent: "#B06A8A",
       accent2: "#E7B4C9",
       tint: "#FBEAF1",
-      zone: { cx: 1850, cy: 800, rx: 470, ry: 430 },
+      zone: { cx: 1850, cy: 790, rx: 470, ry: 360 },
       look: { cx: 1855, cy: 780, s: 0.9 },
       slots: [[1750, 370], [1960, 420], [2180, 560]]
     },
@@ -62,11 +62,12 @@ window.KUSARI_TOWN = {
       accent: "#5E7A6A",
       accent2: "#A9C0AA",
       tint: "#EAF0E7",
-      zone: { cx: 570, cy: 1465, rx: 545, ry: 385 },
-      look: { cx: 570, cy: 1440, s: 0.86 },
-      /* 앞으로 입주할 앱을 위해 3열 × 2줄로 넉넉히 잡아 둔 자리.
-         (지금은 4곳이 서고, 남은 2자리에 `새 건물 입주` 빈 부지가 보인다) */
-      slots: [[230, 1350], [570, 1350], [910, 1350], [230, 1700], [570, 1700], [910, 1700]]
+      zone: { cx: 570, cy: 1520, rx: 560, ry: 370 },
+      look: { cx: 570, cy: 1470, s: 0.86 },
+      /* 강에서 한 걸음 내려온 3열 × 2줄 자리.
+         (지금은 4곳이 서고, 남은 [890, 1770] 자리에 다음 입주앱
+          `감사보고서 자동화` 가 들어온다 — 빈 부지 표시는 하지 않는다) */
+      slots: [[250, 1445], [570, 1445], [890, 1445], [570, 1770], [890, 1770]]
     },
     {
       id: "sprout",
@@ -77,9 +78,9 @@ window.KUSARI_TOWN = {
       accent: "#7E8F45",
       accent2: "#C4D18E",
       tint: "#F2F5E2",
-      zone: { cx: 1740, cy: 1345, rx: 420, ry: 265 },
-      look: { cx: 1740, cy: 1300, s: 0.92 },
-      slots: [[1400, 1300], [1960, 1300], [2010, 1560]]
+      zone: { cx: 1740, cy: 1430, rx: 430, ry: 280 },
+      look: { cx: 1740, cy: 1360, s: 0.92 },
+      slots: [[1400, 1300], [1990, 1320], [2010, 1640]]
     }
   ],
 
@@ -155,33 +156,33 @@ window.KUSARI_TOWN = {
 
     /* 본부 · 업무 광장 독립 사이트 3곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
-      district: "work", building: "library", tier: 1, parent: null, pos: [230, 1350], w: 240,
+      district: "work", building: "library", tier: 1, parent: null, pos: [250, 1445], w: 240,
       role: "본부. 감사 그레이존 판단 사례 DB",
       desc: "공공·출연연 감사 그레이존 판단 사례 710건을 4단계로 정리한 DB.",
       tags: ["내부감사", "사례 710건", "판단 기준"] },
 
     { id: "kitech-audit", name: "KITECH-Audit 포털", url: "https://kitech-audit.vercel.app/", repo: "KITECH-Audit",
-      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [570, 1350], w: 240,
+      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [570, 1445], w: 240,
       role: "본부. 지능형 감사 지원 포털",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] },
 
     { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null, newTab: true,
-      district: "work", building: "observatory", tier: 1, parent: null, pos: [570, 1700], w: 240,
+      district: "work", building: "observatory", tier: 1, parent: null, pos: [570, 1770], w: 240,
       role: "본부. 감사 동향, 사례 브리핑 아카이브",
       desc: "매일 아침 9시 공공·출연연 감사 동향과 주요 사례를 정리해 쌓는 노션 모닝 브리핑 아카이브.",
       tags: ["모닝 브리핑", "공공·출연연", "노션"] },
 
     /* 본부 · 업무 광장 네 번째 입주민 (개인정보 도구) */
     { id: "hwpx-masker", name: "민감정보 안심마스커", url: "https://hwpx-masker.vercel.app/", repo: "hwpx-masker", newTab: true,
-      district: "work", building: "privacy-vault", tier: 1, parent: null, pos: [910, 1350], w: 240,
+      district: "work", building: "privacy-vault", tier: 1, parent: null, pos: [890, 1445], w: 240,
       role: "본부. HWPX 개인정보만 골라 가리기",
       desc: "한글(HWPX) 문서의 주민번호·전화·계좌·주소·성명을 브라우저 안에서만 가립니다. 표·서식은 그대로, 서버 전송 없음.",
       tags: ["개인정보", "HWPX 마스킹", "브라우저 처리"] },
 
     /* 본부 · 영감 놀이터 첫 입주민 */
     { id: "ai-team-room", name: "쿠사리 AI 팀 회의실", url: "https://ai-team-room-457.pages.dev/", repo: "ai-team-room",
-      district: "sprout", building: "cafe", tier: 1, parent: null, pos: [1680, 1340], w: 258,
+      district: "sprout", building: "cafe", tier: 1, parent: null, pos: [1690, 1470], w: 258,
       role: "본부. AI 팀 협업 회의",
       desc: "쿠사리님과 김비서·뮤즈·제미나이·클로드가 방별로 모여 협업하는 팀 회의실.",
       tags: ["AI 회의실", "팀 협업", "실시간"] }
