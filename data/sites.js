@@ -171,7 +171,7 @@ window.KUSARI_TOWN = {
 
     /* 본부 · 업무 광장 네 번째 입주민 (개인정보 도구) */
     { id: "hwpx-masker", name: "민감정보 안심마스커", url: "https://hwpx-masker.vercel.app/", repo: "hwpx-masker", newTab: true,
-      district: "work", building: "library", tier: 1, parent: null, pos: [905, 1555], w: 258,
+      district: "work", building: "library", tier: 1, parent: null, pos: [880, 1495], w: 258,
       role: "본부. HWPX 개인정보만 골라 가리기",
       desc: "한글(HWPX) 문서의 주민번호·전화·계좌·주소·성명을 브라우저 안에서만 가립니다. 표·서식은 그대로, 서버 전송 없음.",
       tags: ["개인정보", "HWPX 마스킹", "브라우저 처리"] },
