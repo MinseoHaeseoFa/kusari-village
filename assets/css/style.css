@@ -102,13 +102,13 @@ a{color:inherit}
 /* 지도는 화면을 꽉 채우는 배경이다 — 둥근 판·테두리·바깥 그림자 없음 */
 .world{
   position:absolute; left:0; top:0;
-  width:2400px; height:1660px;
+  width:2400px; height:1900px;
   transform-origin:0 0;
   background:#A8C489;
 }
 .links{position:absolute;inset:0;width:100%;height:100%;display:block}
-/* 지형 SVG 는 마을(2400×1660) 바깥 들판까지 그린다 — 지도 경계가 보이지 않는다 */
-.terrain{position:absolute;left:-1400px;top:-1100px;width:5200px;height:3860px;display:block}
+/* 지형 SVG 는 마을(2400×1900) 바깥 들판까지 그린다 — 지도 경계가 보이지 않는다 */
+.terrain{position:absolute;left:-1400px;top:-1100px;width:5200px;height:4100px;display:block}
 .links{pointer-events:none}
 .blds{position:absolute;inset:0}
 
