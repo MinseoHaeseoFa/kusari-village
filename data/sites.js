@@ -145,7 +145,7 @@ window.KUSARI_TOWN = {
       tags: ["프롬프트", "이미지·영상", "창작"] },
 
     { id: "slidefix-pro", name: "SlideFix Pro", url: "./apps/slidefix/", repo: "kusari-village",
-      district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2060, 560], w: 258,
+      district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2060, 550], w: 215,
       role: "본부. 이미지·PDF 깨진 글자 복원",
       desc: "노트북LM 슬라이드나 이미지·PDF 속 깨진 한글·오타를 드래그 한 번으로 지우고 새 글자로 복원하는 에디터.",
       tags: ["슬라이드 수정", "OCR", "PDF·이미지"] },
