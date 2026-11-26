@@ -3147,10 +3147,21 @@ ${manualHintText ? `사용자가 현재 입력해 둔 참고 텍스트: "${manua
     }
 
     // ==================== INITIALIZATION ====================
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       bindEvents();
       updateAiKeyUI();
       setCanvasMode('select');
+      /* 샘플 슬라이드는 웹폰트가 준비된 뒤에 그린다 — 폴백 폰트로 그리면 글자 모양이 달라져 OCR 품질도 떨어진다 */
+      try {
+        await Promise.all([
+          document.fonts.load('700 18px Pretendard'),
+          document.fonts.load('700 27px Pretendard'),
+          document.fonts.load('800 44px Pretendard'),
+          document.fonts.load('400 19px Pretendard'),
+          document.fonts.load('700 15px Pretendard'),
+        ]);
+        await document.fonts.ready;
+      } catch (_) {}
       createBuiltInSampleSlide();
     });
   </script>
