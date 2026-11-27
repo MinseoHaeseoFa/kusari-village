@@ -19,6 +19,7 @@
     theme: "kusari-village:v4:time-mode",
     wx: "kusari-village:v4:weather-mode",
     view: "kusari-village:v2:view",
+    miniFold: "kusari-village:v2:minimap-folded",
     coach: "kusari-village:v2:coach-seen",
     v1custom: "kusari-village:v1:custom-sites",
     v1fav: "kusari-village:v1:favorites",
@@ -148,6 +149,25 @@
     });
     const fav = read(KEY.fav, null) || read(KEY.v1fav, []);
     state.favs = Array.isArray(fav) ? fav.filter((id) => typeof id === "string") : [];
+  })();
+
+  /* ── 미니맵 접기/펴기 ──────────────────────────────── */
+  /*   좁은 화면에서 약도가 마을 오른쪽 아래 건물을 가리지 않게 접어 둘 수 있다. */
+  (function initMinimapFold() {
+    const mm = $("#minimap"), btn = $("#minimapFold");
+    if (!mm || !btn) return;
+    let folded = read(KEY.miniFold, false) === true;
+    const apply = () => {
+      mm.classList.toggle("is-folded", folded);
+      btn.setAttribute("aria-pressed", folded ? "true" : "false");
+      btn.setAttribute("aria-label", folded ? "미니맵 펼치기" : "미니맵 접기");
+    };
+    apply();
+    btn.addEventListener("click", () => {
+      folded = !folded;
+      write(KEY.miniFold, folded);
+      apply();
+    });
   })();
 
   /* ── 토스트 ───────────────────────────────────────────── */
