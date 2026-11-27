@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v7 · 기본 입주 명단 (KUSARI VILLAGE · sites · 13곳)
+   🏡 쿠사리 빌리지 v7 · 기본 입주 명단 (KUSARI VILLAGE · sites · 14곳)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1900) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -21,8 +21,8 @@
    · role     : 명패·카드에 들어가는 한 줄 소개 (예: "본부. 잊지 못할 여행의 기록")
    ============================================================ */
 window.KUSARI_TOWN = {
-  version: 6,
-  updated: "2026-11-26",
+  version: 7,
+  updated: "2026-11-27",
   world: { w: 2400, h: 1900 },
 
   /* ── 지구 ─────────────────────────────────────── */
@@ -49,9 +49,12 @@ window.KUSARI_TOWN = {
       accent: "#B06A8A",
       accent2: "#E7B4C9",
       tint: "#FBEAF1",
-      zone: { cx: 1850, cy: 790, rx: 470, ry: 360 },
-      look: { cx: 1855, cy: 780, s: 0.9 },
-      slots: [[1750, 370], [1960, 420], [2180, 560]]
+      /* 4채(인생이라는 필름 · 프롬프트 스튜디오 · SlideFix Pro · 영상 편집 템플릿 스튜디오)가
+         서는 골목. 서쪽 입구에 영상 편집 템플릿 스튜디오를 맞이하도록 살짝 넓혔다. */
+      zone: { cx: 1830, cy: 780, rx: 490, ry: 360 },
+      look: { cx: 1720, cy: 780, s: 0.74 },
+      /* 다음 건물이 들어올 빈 자리 — 골목 북쪽 풀밭 두 곳 */
+      slots: [[1500, 350], [1770, 350]]
     },
     {
       id: "work",
@@ -101,7 +104,7 @@ window.KUSARI_TOWN = {
     { id: "observatory",  name: "작은 천문대",         en: "Little Observatory", img: "assets/buildings/observatory.webp", w: 760, h: 760 }
   ],
 
-  /* ── 기본 입주 사이트 12곳 ────────────────────── */
+  /* ── 기본 입주 사이트 14곳 ────────────────────── */
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
@@ -135,15 +138,21 @@ window.KUSARI_TOWN = {
       desc: "출발·귀환 교통부터 숙소와 동선까지, 7개 탭으로 짜는 여행 계획. 나의 여행 지도에서 이어집니다.",
       tags: ["여행 계획", "숙소·동선", "Trail Log"] },
 
-    /* 본부 · 창작 골목 독립 사이트 3곳 */
+    /* 본부 · 창작 골목 독립 사이트 4곳 */
+    { id: "video-template-studio", name: "영상 편집 템플릿 스튜디오", url: "https://video-template-studio-six.vercel.app/", repo: "video-template-studio",
+      district: "creative", building: "cafe", tier: 1, parent: null, pos: [1483, 690], w: 215,
+      role: "본부. 영상 편집 템플릿 DB",
+      desc: "인스타 릴스와 CapCut의 영상 편집 템플릿을 용도·클립 수·툴별로 모아 두고 내 템플릿도 쌓는 카탈로그.",
+      tags: ["영상 편집", "CapCut", "템플릿 DB"] },
+
     { id: "life-film-photo-guide", name: "인생이라는 필름", url: "https://life-film-photo-guide.vercel.app/", repo: "life-film-photo-guide",
-      district: "creative", building: "film-lab", tier: 1, parent: null, pos: [1720, 700], w: 258,
+      district: "creative", building: "film-lab", tier: 1, parent: null, pos: [1780, 700], w: 258,
       role: "본부. 인생 사진 촬영 가이드",
       desc: "촬영 팁 100장과 실제 사진으로 배우는 인생 사진 가이드. 창작 골목의 독립 사이트입니다.",
       tags: ["사진", "촬영 가이드", "100장"] },
 
     { id: "my-prompt-studio", name: "나만의 프롬프트 스튜디오", url: "https://my-prompt-studio-mu.vercel.app/", repo: "my-prompt-studio",
-      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2000, 890], w: 258,
+      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2050, 890], w: 258,
       role: "본부. 이미지·영상 프롬프트 작업실",
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
@@ -154,7 +163,7 @@ window.KUSARI_TOWN = {
       desc: "이미지나 PDF 속 깨진 한글·오타를 드래그 한 번으로 지우고 새 글자로 복원하는 에디터.",
       tags: ["슬라이드 수정", "OCR", "PDF·이미지"] },
 
-    /* 본부 · 업무 광장 독립 사이트 3곳 */
+    /* 본부 · 업무 광장 독립 사이트 4곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
       district: "work", building: "library", tier: 1, parent: null, pos: [250, 1445], w: 240,
       role: "본부. 감사 그레이존 판단 사례 DB",
