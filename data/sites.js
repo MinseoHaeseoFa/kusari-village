@@ -206,7 +206,7 @@ window.KUSARI_TOWN = {
 
     /* 본부 · 업무 광장 다섯 번째 입주민 (문서 자동화) */
     { id: "audit-report", name: "감사보고서 자동화", url: "https://audit-report-chi.vercel.app/", repo: "audit-report", newTab: true,
-      district: "work", building: "greenhouse", tier: 1, parent: null, pos: [700, 1780], w: 240,
+      district: "work", building: "greenhouse", tier: 1, parent: null, pos: [740, 1780], w: 240,
       role: "본부. 감사처분심의위원회 결과보고서 HWPX",
       desc: "감사 팩트를 넣으면 감사처분심의위원회 결과보고서 서식 그대로의 .hwpx를 만드는 문서 공방. 입력값·파일은 브라우저 안에서만 처리됩니다.",
       tags: ["감사보고서", "HWPX 자동 생성", "브라우저 처리"] },
