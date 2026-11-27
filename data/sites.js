@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v7 · 기본 입주 명단 (KUSARI VILLAGE · sites · 14곳)
+   🏡 쿠사리 빌리지 v8 · 기본 입주 명단 (KUSARI VILLAGE · sites · 14곳)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1900) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -19,9 +19,10 @@
    · parent   : tier 2 일 때 상위 본부 사이트의 id
    · pos      : [x, y] 마을 지도 위 발밑 좌표 (생략하면 자동 배치)
    · role     : 명패·카드에 들어가는 한 줄 소개 (예: "본부. 잊지 못할 여행의 기록")
+   · sign     : 지구 표지판이 서는 지도 좌표 [x, y] (district 쪽에만 씁니다)
    ============================================================ */
 window.KUSARI_TOWN = {
-  version: 7,
+  version: 8,
   updated: "2026-11-27",
   world: { w: 2400, h: 1900 },
 
@@ -32,13 +33,17 @@ window.KUSARI_TOWN = {
       name: "여행 지구",
       en: "Travel District",
       emoji: "🧭",
-      desc: "나의 여행 지도 본부와 4개 별관이 모인 마을 북쪽 언덕",
+      desc: "나의 여행 지도 본부와 4개 별관이 모인 마을 북서쪽 언덕",
       accent: "#C1663B",
       accent2: "#E9B98C",
       tint: "#FDEFDF",
-      zone: { cx: 1010, cy: 500, rx: 680, ry: 450 },
-      look: { cx: 1010, cy: 500, s: 0.82 },
-      slots: [[520, 620], [380, 880], [1520, 380], [1490, 910]]
+      /* 서쪽으로 옮기고 반경을 줄여 본부 1 + 별관 4 + 다음 1채만 감싸는 구역으로 조였다.
+         (구역 680×450 → 490×490, 면적 약 22% 축소) */
+      zone: { cx: 600, cy: 560, rx: 490, ry: 490 },
+      look: { cx: 620, cy: 600, s: 0.86 },
+      /* 여행 지구 남쪽 길목 — 다음 여행 앱이 들어올 서쪽 빈 터는 slots 에 남긴다 */
+      sign: [610, 860],
+      slots: [[140, 570]]
     },
     {
       id: "creative",
@@ -50,11 +55,14 @@ window.KUSARI_TOWN = {
       accent2: "#E7B4C9",
       tint: "#FBEAF1",
       /* 4채(인생이라는 필름 · 프롬프트 스튜디오 · SlideFix Pro · 영상 편집 템플릿 스튜디오)가
-         서는 골목. 서쪽 입구에 영상 편집 템플릿 스튜디오를 맞이하도록 살짝 넓혔다. */
-      zone: { cx: 1830, cy: 780, rx: 490, ry: 360 },
-      look: { cx: 1720, cy: 780, s: 0.74 },
-      /* 다음 건물이 들어올 빈 자리 — 골목 북쪽 풀밭 두 곳 */
-      slots: [[1500, 350], [1770, 350]]
+         서는 골목. 여행 지구가 서쪽으로 비켜준 만큼 골목 구역을 마을 중앙까지 넓게 펼쳤다.
+         (구역 490×360 → 615×430, 면적 약 51% 확대) */
+      zone: { cx: 1725, cy: 690, rx: 615, ry: 430 },
+      look: { cx: 1650, cy: 700, s: 0.72 },
+      /* 골목 남서쪽 입구 — 마을 중앙 길에서 골목으로 들어서는 자리 */
+      sign: [1600, 896],
+      /* 다음 건물이 들어올 빈 자리 — 골목 서쪽 입구 안쪽과 북쪽 풀밭 세 곳 */
+      slots: [[1230, 600], [1500, 360], [1790, 335]]
     },
     {
       id: "work",
@@ -65,12 +73,15 @@ window.KUSARI_TOWN = {
       accent: "#5E7A6A",
       accent2: "#A9C0AA",
       tint: "#EAF0E7",
-      zone: { cx: 570, cy: 1520, rx: 560, ry: 370 },
-      look: { cx: 570, cy: 1470, s: 0.86 },
-      /* 강에서 한 걸음 내려온 3열 × 2줄 자리.
-         (지금은 4곳이 서고, 남은 [890, 1770] 자리에 다음 입주앱
-          `감사보고서 자동화` 가 들어온다 — 빈 부지 표시는 하지 않는다) */
-      slots: [[250, 1445], [570, 1445], [890, 1445], [570, 1770], [890, 1770]]
+      /* 남서~남중앙 돌바닥 광장을 최대한 넓혔다. (구역 560×370 → 530×400, 돌바닥 486×350 → 480×380)
+         입주 자리는 4열 × 2줄(윗줄 4칸 · 아랫줄 2칸). 4곳이 서고, [700, 1780] 에 `감사보고서 자동화` 가
+         들어오며 [965, 1425] 가 다음 입주 몫으로 비어 있다.
+         (동쪽 끝은 대문 아치와 부딪히지 않게 x≈1040 에서 멈춘다 — 아랫줄 동쪽 칸은 두지 않고,
+          아랫줄 서쪽 칸은 업무 광장 표지판 자리로 비워 둔다) */
+      zone: { cx: 620, cy: 1510, rx: 530, ry: 400 },
+      look: { cx: 620, cy: 1450, s: 0.78 },
+      sign: [160, 1600],
+      slots: [[170, 1425], [435, 1425], [700, 1425], [965, 1425], [435, 1780], [700, 1780]]
     },
     {
       id: "sprout",
@@ -81,8 +92,10 @@ window.KUSARI_TOWN = {
       accent: "#7E8F45",
       accent2: "#C4D18E",
       tint: "#F2F5E2",
-      zone: { cx: 1740, cy: 1430, rx: 430, ry: 280 },
-      look: { cx: 1740, cy: 1360, s: 0.92 },
+      zone: { cx: 1740, cy: 1440, rx: 460, ry: 300 },
+      look: { cx: 1740, cy: 1380, s: 0.9 },
+      /* 표지판을 구역 남서쪽 길목으로 내려 `쿠사리 AI 팀 회의실` 명패와 겹치지 않게 했다 */
+      sign: [1500, 1660],
       slots: [[1400, 1300], [1990, 1320], [2010, 1640]]
     }
   ],
@@ -108,32 +121,32 @@ window.KUSARI_TOWN = {
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
-      district: "travel", building: "travel-hub", tier: 1, parent: null, pos: [1010, 566], w: 300,
+      district: "travel", building: "travel-hub", tier: 1, parent: null, pos: [650, 605], w: 300,
       role: "본부. 잊지 못할 여행의 기록",
       desc: "다녀온 국내·세계 여행지를 색으로 채워가는 나만의 지도 허브. 아래 4개 Trail Log와 플래너가 모두 이 본부에서 이어집니다.",
       tags: ["여행 허브", "색칠 지도", "본부"] },
 
     /* 별관 · 나의 여행 지도 산하 4곳 */
     { id: "korea-travel-map", name: "대한민국 Trail Log", url: "https://korea-travel-map-ebon.vercel.app/", repo: "korea-travel-map",
-      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [752, 292], w: 170,
+      district: "travel", building: "hanok", tier: 2, parent: "my-travel-map", pos: [390, 300], w: 170,
       role: "별관. 나의 대한민국 여행 기록",
       desc: "전국 167개 시·군의 명소를 따라가며 남기는 국내 여행 기록. 나의 여행 지도에서 이어집니다.",
       tags: ["국내 여행", "167개 시·군", "Trail Log"] },
 
     { id: "world-travel-map", name: "세계 여행 Trail Log", url: "https://world-travel-map-blush.vercel.app/", repo: "world-travel-map",
-      district: "travel", building: "lighthouse", tier: 2, parent: "my-travel-map", pos: [1240, 812], w: 170,
+      district: "travel", building: "lighthouse", tier: 2, parent: "my-travel-map", pos: [870, 880], w: 170,
       role: "별관. 나의 세계 여행 기록",
       desc: "세계 지도를 한 칸씩 채우며 쌓는 해외 여행의 발자취. 나의 여행 지도에서 이어집니다.",
       tags: ["세계 여행", "국가별 기록", "Trail Log"] },
 
     { id: "mountain-travel-map", name: "100대 명산 Trail Log", url: "https://mountain-travel-map.vercel.app/", repo: "mountain-travel-map",
-      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [1300, 285], w: 170,
+      district: "travel", building: "lodge", tier: 2, parent: "my-travel-map", pos: [920, 300], w: 170,
       role: "별관. 나의 명산 완등 기록",
       desc: "100대 명산 완등을 향한 산행 기록과 산행지 안내. 나의 여행 지도에서 이어집니다.",
       tags: ["100대 명산", "등산 기록", "Trail Log"] },
 
     { id: "my-travel-planner", name: "나의 여행 플래너", url: "https://my-travel-planner-kohl.vercel.app/", repo: "my-travel-planner",
-      district: "travel", building: "train-station", tier: 2, parent: "my-travel-map", pos: [784, 806], w: 170,
+      district: "travel", building: "train-station", tier: 2, parent: "my-travel-map", pos: [350, 880], w: 170,
       role: "별관. 여행 계획은 스마트하게",
       desc: "출발·귀환 교통부터 숙소와 동선까지, 7개 탭으로 짜는 여행 계획. 나의 여행 지도에서 이어집니다.",
       tags: ["여행 계획", "숙소·동선", "Trail Log"] },
@@ -152,39 +165,39 @@ window.KUSARI_TOWN = {
       tags: ["사진", "촬영 가이드", "100장"] },
 
     { id: "my-prompt-studio", name: "나만의 프롬프트 스튜디오", url: "https://my-prompt-studio-mu.vercel.app/", repo: "my-prompt-studio",
-      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2050, 890], w: 258,
+      district: "creative", building: "atelier", tier: 1, parent: null, pos: [2060, 900], w: 258,
       role: "본부. 이미지·영상 프롬프트 작업실",
       desc: "린니·HSH·유나 세 화풍의 이미지·영상 프롬프트를 한 화면에서 만드는 작업실.",
       tags: ["프롬프트", "이미지·영상", "창작"] },
 
     { id: "slidefix-pro", name: "SlideFix Pro", url: "https://sliderfix-pro.vercel.app/", repo: "sliderfix-pro", newTab: true,
-      district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2060, 550], w: 215,
+      district: "creative", building: "greenhouse", tier: 1, parent: null, pos: [2050, 530], w: 215,
       role: "본부. 이미지·PDF 깨진 글자 복원",
       desc: "이미지나 PDF 속 깨진 한글·오타를 드래그 한 번으로 지우고 새 글자로 복원하는 에디터.",
       tags: ["슬라이드 수정", "OCR", "PDF·이미지"] },
 
     /* 본부 · 업무 광장 독립 사이트 4곳 */
     { id: "audit-grayzone-db", name: "감사 그레이존 사례 DB", url: "https://audit-grayzone-db.vercel.app/", repo: "audit-grayzone-db",
-      district: "work", building: "library", tier: 1, parent: null, pos: [250, 1445], w: 240,
+      district: "work", building: "library", tier: 1, parent: null, pos: [170, 1425], w: 240,
       role: "본부. 감사 그레이존 판단 사례 DB",
       desc: "공공·출연연 감사 그레이존 판단 사례 710건을 4단계로 정리한 DB.",
       tags: ["내부감사", "사례 710건", "판단 기준"] },
 
     { id: "kitech-audit", name: "KITECH-Audit 포털", url: "https://kitech-audit.vercel.app/", repo: "KITECH-Audit",
-      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [570, 1445], w: 240,
+      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [435, 1425], w: 240,
       role: "본부. 지능형 감사 지원 포털",
       desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
       tags: ["KITECH", "감사 포털", "통합 자료"] },
 
     { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null, newTab: true,
-      district: "work", building: "observatory", tier: 1, parent: null, pos: [570, 1770], w: 240,
+      district: "work", building: "observatory", tier: 1, parent: null, pos: [435, 1780], w: 240,
       role: "본부. 감사 동향, 사례 브리핑 아카이브",
       desc: "매일 아침 9시 공공·출연연 감사 동향과 주요 사례를 정리해 쌓는 노션 모닝 브리핑 아카이브.",
       tags: ["모닝 브리핑", "공공·출연연", "노션"] },
 
     /* 본부 · 업무 광장 네 번째 입주민 (개인정보 도구) */
     { id: "hwpx-masker", name: "민감정보 안심마스커", url: "https://hwpx-masker.vercel.app/", repo: "hwpx-masker", newTab: true,
-      district: "work", building: "privacy-vault", tier: 1, parent: null, pos: [890, 1445], w: 240,
+      district: "work", building: "privacy-vault", tier: 1, parent: null, pos: [700, 1425], w: 240,
       role: "본부. HWPX 개인정보만 골라 가리기",
       desc: "한글(HWPX) 문서의 주민번호·전화·계좌·주소·성명을 브라우저 안에서만 가립니다. 표·서식은 그대로, 서버 전송 없음.",
       tags: ["개인정보", "HWPX 마스킹", "브라우저 처리"] },

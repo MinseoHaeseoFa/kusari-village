@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v6 — app.js
+   🏡 쿠사리 빌리지 v8 — app.js
    2.5D 마을 지도 · 본부/별관 계층 · 카메라/투어/걷기
    시간대(낮·노을·밤) 자동 전환 + 현지 실시간 날씨 풍경
    기본 명단(data/sites.js) + 내가 입주시킨 건물(localStorage)
@@ -350,13 +350,15 @@
      좌표계는 마을 (0,0)-(2400,1900) 그대로이고, 그 둘레로만 땅을 더 둔다. */
   const PAD = { l: 1400, t: 1100, r: 1400, b: 1100 };
   const RIVER = "M -1500 1136 C -1100 1072 -520 1024 -80 1024 C 260 994 520 1064 860 1056 C 1040 1052 1140 1028 1240 1042 C 1420 1066 1600 1084 1800 1058 C 2000 1032 2200 1012 2480 1036 C 2900 1054 3300 1014 3800 1090";
+  /* 오솔길 — 다리 위 삼거리(1160,740)에서 여행 지구(서쪽)와 창작 골목(동쪽)으로 갈라진다.
+     (지형 SVG 는 viewBox 높이 때문에 화면에 120 만큼 아래로 그려진다 — 길은 그만큼 당겨서 적는다) */
   const ROADS = [
     "M 1180 2860 L 1180 1046",
-    "M 1180 1040 C 1180 884 1180 776 1104 664",
-    "M 1180 1116 C 1152 1216 1112 1310 1046 1400",
+    "M 1180 1040 C 1180 950 1172 860 1160 740",
+    "M 1160 740 C 1100 722 1012 646 952 604 C 926 586 894 580 862 580",
+    "M 1180 1116 C 1152 1216 1100 1310 1005 1390",
     "M 1180 1476 C 1300 1458 1424 1398 1524 1368 C 1652 1330 1780 1324 1904 1314",
-    "M 1140 672 C 1300 684 1432 702 1562 702 C 1682 702 1762 708 1812 732",
-    "M 1812 732 C 1900 792 1950 852 1998 894"
+    "M 1160 740 C 1290 746 1420 752 1550 760 C 1680 768 1760 780 1822 802"
   ];
 
   const TREES = [
@@ -402,7 +404,9 @@
   ];
 
   /* 지구 표지판 — 구역 색으로 칠한 큰 팻말.
-     위 칸에 이모지 + 한글 이름, 아래 칸에 영문 이름을 넣는다. */
+     위 칸에 이모지 + 한글 이름, 아래 칸에 영문 이름을 넣는다.
+     자리는 data/sites.js 의 district.sign 을 먼저 쓴다 (없으면 v7 자리로 대체). */
+  const SIGN_FALLBACK = { travel: [1010, 852], creative: [1600, 896], work: [250, 1615], sprout: [1450, 1560] };
   function signSvg(x, y, label, en, accent) {
     const W_BOARD = 268, H_BOARD = 78;
     return `<g>
@@ -555,19 +559,19 @@
     <!-- 오솔길 -->
     ${roadSvg}
 
-    <!-- 광장 -->
-    <ellipse cx="1010" cy="608" rx="298" ry="150" fill="url(#gShade)"/>
-    <ellipse cx="1010" cy="606" rx="244" ry="120" fill="url(#gPlaza)"/>
-    <ellipse cx="1010" cy="606" rx="244" ry="120" fill="url(#pStone)" opacity=".42"/>
-    <ellipse cx="1010" cy="606" rx="244" ry="120" fill="none" stroke="#BFA981" stroke-width="5"/>
-    <ellipse cx="1010" cy="606" rx="204" ry="102" fill="none" stroke="#BFA981" stroke-opacity=".5" stroke-width="3" stroke-dasharray="14 16"/>
+    <!-- 광장 — 여행 지구 본부(서쪽) 앞마당 -->
+    <ellipse cx="650" cy="648" rx="298" ry="150" fill="url(#gShade)"/>
+    <ellipse cx="650" cy="646" rx="244" ry="120" fill="url(#gPlaza)"/>
+    <ellipse cx="650" cy="646" rx="244" ry="120" fill="url(#pStone)" opacity=".42"/>
+    <ellipse cx="650" cy="646" rx="244" ry="120" fill="none" stroke="#BFA981" stroke-width="5"/>
+    <ellipse cx="650" cy="646" rx="204" ry="102" fill="none" stroke="#BFA981" stroke-opacity=".5" stroke-width="3" stroke-dasharray="14 16"/>
 
-    <!-- 업무 광장 — 앞으로 입주할 앱까지 넉넉히 받는 큰 돌바닥 -->
-    <ellipse cx="570" cy="1528" rx="492" ry="358" fill="url(#gShade)"/>
-    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="url(#gPlaza)"/>
-    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="url(#pStone)" opacity=".4"/>
-    <ellipse cx="570" cy="1522" rx="486" ry="350" fill="none" stroke="#BFA981" stroke-width="5"/>
-    <ellipse cx="570" cy="1522" rx="416" ry="288" fill="none" stroke="#BFA981" stroke-opacity=".38" stroke-width="3" stroke-dasharray="16 18"/>
+    <!-- 업무 광장 — 4열 × 2줄 입주 자리를 받는 큰 돌바닥 (동쪽 끝은 대문 아치 앞에서 멈춘다) -->
+    <ellipse cx="540" cy="1526" rx="506" ry="373" fill="url(#gShade)"/>
+    <ellipse cx="540" cy="1520" rx="500" ry="365" fill="url(#gPlaza)"/>
+    <ellipse cx="540" cy="1520" rx="500" ry="365" fill="url(#pStone)" opacity=".4"/>
+    <ellipse cx="540" cy="1520" rx="500" ry="365" fill="none" stroke="#BFA981" stroke-width="5"/>
+    <ellipse cx="540" cy="1520" rx="428" ry="300" fill="none" stroke="#BFA981" stroke-opacity=".38" stroke-width="3" stroke-dasharray="16 18"/>
 
     <!-- 광장은 비워 둔 돌바닥으로 남기고, 다음 입주앱(감사보고서 자동화) 자리를 미리 확보해 둔다 -->
 
@@ -626,11 +630,12 @@
       </g>
     </g>
 
-    <!-- 지구 표지판 — 각 구역 앞길 땅 위에 큰 팻말로 세운다 -->
-    ${signSvg(1010, 852, "🧭 여행 지구", "TRAVEL DISTRICT", "#C1663B")}
-    ${signSvg(1600, 896, "📸 창작 골목", "CREATIVE ALLEY", "#B06A8A")}
-    ${signSvg(250, 1615, "🏛️ 업무 광장", "WORK PLAZA", "#5E7A6A")}
-    ${signSvg(1450, 1560, "💡 영감 놀이터", "IDEA PLAYGROUND", "#7E8F45")}
+    <!-- 지구 표지판 — 각 구역 앞길 땅 위에 큰 팻말로 세운다 (자리는 district.sign) -->
+    ${DISTRICTS.map((d) => {
+      const p = d.sign || SIGN_FALLBACK[d.id];
+      if (!p) return "";
+      return signSvg(p[0], p[1], (d.emoji ? d.emoji + " " : "") + d.name, String(d.en || "").toUpperCase(), d.accent || "#5E7A6A");
+    }).join("")}
 
     <!-- 장식 -->
     ${TREES.map(([x, y, s]) => svgUse(x % 3 === 0 ? "tree--warm" : "tree", x, y, s)).join("")}
