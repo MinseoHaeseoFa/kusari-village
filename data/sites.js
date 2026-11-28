@@ -1,5 +1,5 @@
 /* ============================================================
-   🏡 쿠사리 빌리지 v8 · 기본 입주 명단 (KUSARI VILLAGE · sites · 15곳)
+   🏡 쿠사리 빌리지 v8.2 · 기본 입주 명단 (KUSARI VILLAGE · sites · 14곳)
    ------------------------------------------------------------
    마을은 하나의 연속된 2.5D 지도입니다. 좌표(pos)는 마을 지도
    (2400 × 1900) 위에서 건물이 서는 발밑 지점 [x, y] 입니다.
@@ -13,7 +13,7 @@
               newTab 을 쓰지 않아도 새 탭으로 열립니다)
 
    · district : travel | creative | work | sprout
-   · building : presets 배열의 id (건물 그림 13종)
+   · building : presets 배열의 id (건물 그림 14종)
    · tier     : 1 = 본부(독립 사이트) / 2 = 별관(본부 하위 연결)
               ※ tier 값은 내부 구분용입니다. 화면에는 `본부`·`별관`으로만 보입니다.
    · parent   : tier 2 일 때 상위 본부 사이트의 id
@@ -22,8 +22,8 @@
    · sign     : 지구 표지판이 서는 지도 좌표 [x, y] (district 쪽에만 씁니다)
    ============================================================ */
 window.KUSARI_TOWN = {
-  version: 8,
-  updated: "2026-11-27",
+  version: 8.2,
+  updated: "2026-11-28",
   world: { w: 2400, h: 1900 },
 
   /* ── 지구 ─────────────────────────────────────── */
@@ -69,20 +69,20 @@ window.KUSARI_TOWN = {
       name: "업무 광장",
       en: "Work Plaza",
       emoji: "🏛️",
-      desc: "감사 자료와 포털, 개인정보 도구가 넓게 펼쳐진 돌바닥 광장",
+      desc: "감사 자료와 개인정보 도구가 넓게 펼쳐진 돌바닥 광장",
       accent: "#5E7A6A",
       accent2: "#A9C0AA",
       tint: "#EAF0E7",
       /* 남서~남중앙 돌바닥 광장을 최대한 넓혔다. (구역 560×370 → 530×400, 돌바닥 486×350 → 480×380)
-         입주 자리는 4열 × 2줄(윗줄 4칸 · 아랫줄 2칸). 5곳이 서고(윗줄 3 + 아랫줄 2),
-         [965, 1425] 가 다음 입주 몫으로 비어 있다.
+         입주 자리는 4열 × 2줄(윗줄 4칸 · 아랫줄 2칸). 4곳이 서고(윗줄 2 + 아랫줄 2),
+         [435, 1425]·[965, 1425] 가 다음 입주 몫으로 비어 있다.
          (동쪽 끝은 대문 아치와 부딪히지 않게 x≈1040 에서 멈춘다 — 아랫줄 동쪽 칸은 두지 않고,
           아랫줄 서쪽 칸은 업무 광장 표지판 자리로 비워 둔다) */
       zone: { cx: 620, cy: 1510, rx: 530, ry: 400 },
       look: { cx: 620, cy: 1450, s: 0.78 },
       sign: [160, 1600],
-      /* 자리 격자(4열 × 2줄). 지금은 [965,1425] 만 비어 있고, 나머지는 이미 5채가 섰다
-         (감사보고서 자동화가 2026-11-27 에 [700,1780] 을 채웠다). */
+      /* 자리 격자(4열 × 2줄). 지금은 [435,1425]·[965,1425] 가 비어 있고, 나머지 네 자리에 4채가 섰다
+         (2026-11-28 에 「KITECH-Audit 포털」이 [435,1425] 에서 빠지며 이 자리가 다시 비었다). */
       slots: [[170, 1425], [435, 1425], [700, 1425], [965, 1425], [435, 1780], [700, 1780]]
     },
     {
@@ -102,7 +102,7 @@ window.KUSARI_TOWN = {
     }
   ],
 
-  /* ── 건물 프리셋 13종 ─────────────────────────── */
+  /* ── 건물 프리셋 14종 ─────────────────────────── */
   presets: [
     { id: "travel-hub",   name: "중앙 여행자 안내소", en: "Central Travel Hub", img: "assets/buildings/travel-hub.webp", w: 760, h: 675 },
     { id: "hanok",        name: "한옥 게스트하우스",   en: "Hanok Guesthouse",   img: "assets/buildings/hanok.webp",       w: 760, h: 608 },
@@ -116,10 +116,11 @@ window.KUSARI_TOWN = {
     { id: "archive-hall", name: "모던 연구 아카이브",  en: "Research Archive",   img: "assets/buildings/archive-hall.webp", w: 760, h: 608 },
     { id: "cafe",         name: "아기자기한 카페",     en: "Cozy Corner Cafe",   img: "assets/buildings/cafe.webp",        w: 760, h: 760 },
     { id: "greenhouse",   name: "온실 공방",           en: "Greenhouse Workshop",img: "assets/buildings/greenhouse.webp",  w: 760, h: 760 },
+    { id: "audit-academy",name: "아카데미 강의관",      en: "Academic Lecture Hall", img: "assets/buildings/audit-academy.webp", w: 760, h: 625 },
     { id: "observatory",  name: "작은 천문대",         en: "Little Observatory", img: "assets/buildings/observatory.webp", w: 760, h: 760 }
   ],
 
-  /* ── 기본 입주 사이트 15곳 ────────────────────── */
+  /* ── 기본 입주 사이트 14곳 ────────────────────── */
   sites: [
     /* 본부 · 여행 지구 본부 (별관 4개를 거느림) */
     { id: "my-travel-map", name: "나의 여행 지도", url: "https://my-travel-map-kohl.vercel.app/", repo: "my-travel-map",
@@ -185,28 +186,22 @@ window.KUSARI_TOWN = {
       desc: "공공·출연연 감사 그레이존 판단 사례 710건을 4단계로 정리한 DB.",
       tags: ["내부감사", "사례 710건", "판단 기준"] },
 
-    { id: "kitech-audit", name: "KITECH-Audit 포털", url: "https://kitech-audit.vercel.app/", repo: "KITECH-Audit",
-      district: "work", building: "archive-hall", tier: 1, parent: null, pos: [435, 1425], w: 240,
-      role: "본부. 지능형 감사 지원 포털",
-      desc: "지능형 감사 지원 도구와 자료를 한곳에 모은 통합 포털.",
-      tags: ["KITECH", "감사 포털", "통합 자료"] },
-
     { id: "daily-audit-briefing", name: "감사 모닝 브리핑", url: "https://shinuc.notion.site/Daily-Audit-Briefing-412b1bd442e380efae37e2bbf1b7e955", repo: null, newTab: true,
       district: "work", building: "observatory", tier: 1, parent: null, pos: [435, 1780], w: 240,
       role: "본부. 감사 동향, 사례 브리핑 아카이브",
       desc: "매일 아침 9시 공공·출연연 감사 동향과 주요 사례를 정리해 쌓는 노션 모닝 브리핑 아카이브.",
       tags: ["모닝 브리핑", "공공·출연연", "노션"] },
 
-    /* 본부 · 업무 광장 네 번째 입주민 (개인정보 도구) */
+    /* 본부 · 업무 광장 세 번째 입주민 (개인정보 도구) */
     { id: "hwpx-masker", name: "민감정보 안심마스커", url: "https://hwpx-masker.vercel.app/", repo: "hwpx-masker", newTab: true,
       district: "work", building: "privacy-vault", tier: 1, parent: null, pos: [700, 1425], w: 240,
       role: "본부. HWPX 개인정보만 골라 가리기",
       desc: "한글(HWPX) 문서의 주민번호·전화·계좌·주소·성명을 브라우저 안에서만 가립니다. 표·서식은 그대로, 서버 전송 없음.",
       tags: ["개인정보", "HWPX 마스킹", "브라우저 처리"] },
 
-    /* 본부 · 업무 광장 다섯 번째 입주민 (문서 자동화) */
+    /* 본부 · 업무 광장 네 번째 입주민 (문서 자동화) */
     { id: "audit-report", name: "감사보고서 자동화", url: "https://audit-report-chi.vercel.app/", repo: "audit-report", newTab: true,
-      district: "work", building: "greenhouse", tier: 1, parent: null, pos: [740, 1780], w: 240,
+      district: "work", building: "audit-academy", tier: 1, parent: null, pos: [740, 1780], w: 240,
       role: "본부. 감사처분심의위원회 결과보고서 HWPX",
       desc: "감사 팩트를 넣으면 감사처분심의위원회 결과보고서 서식 그대로의 .hwpx를 만드는 문서 공방. 입력값·파일은 브라우저 안에서만 처리됩니다.",
       tags: ["감사보고서", "HWPX 자동 생성", "브라우저 처리"] },
